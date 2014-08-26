@@ -1,0 +1,21 @@
+
+
+
+June 2014
+Zhe Song
+
+This document represents a change in direction. We realized that we cannot use MPI. And so here is the new design.
+
+
+1. Remove MPI from the current code(it's not a real parallelization implementation)
+2. We can go back to the previous design by having a lot of R script to generate pieces of callfiles and
+then aggregate them togethers. Implement a Call_reader to read call files
+3. Have one single process for all AR schedulers. Create one object for each of the schedulers, and
+then keep the references of these objects into a vector. Keep the current classes and data structures 
+4. Do not need to have a counter to represent the time anymore. Instead, we can read the all(sorted in the call file)
+one by one and process the next one only when the current call is processed. updates will be triggered when the
+arrival time of the current call exceeds the next update time. For example: If the MRAI=10seconds, and there are
+two calls coming at 9.95 and 10.01, then when the 10.01 call comes, we will first send update messages between AS(it's not
+sending anymore but we can keep this word) and then process the 10.01 call. In extreme cases, for example, if one call comes
+at 9.95 and the next one comes at 20.01, then when should do updating twice. 
+5. Some of the data structures should be modified or aggregated.

@@ -1,0 +1,7 @@
+//the first parameter indicates whether this is a transit AS(0) or a stub(1)
+1 
+//the second parameter local preference number for each of the neighbor AS
+100 200
+//neighbor_AS_number boundary_node_number MED_value
+3 2 50
+3 3 60
