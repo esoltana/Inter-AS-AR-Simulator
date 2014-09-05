@@ -82,32 +82,40 @@ int main(int argc, char* argv[]) {
         Delays.addDelay(f_AS, t_AS, delay);
 
     }
-    ///////
+    
+    //Create the required modules (ARServer which includes: Scheduler, ARBGP, IPCE and EPCE) for each AS
     for (as_num = 1; as_num <= num_of_AS; as_num++) {
+        //make an ARServer instance for each AS
         ARserver ARSERVER = ARserver(as_num, AR_whole_time, 60);
         int tmpasnum, num_vertices, node_u, node_v, edge_weight, edge_band, start_AS, end_AS;
         string start_AS_vertex;
         string end_AS_vertex;
+        
         //delete
         vector<Edge> intra_edges;
         vector<Inter_AS_Links> InterASLinks_table;
         //
+        
+        //define the AS name which is AS+number
         stringstream asname;
         asname << "inputdata/AS" << as_num << "/AS" << as_num;
         string asfile = asname.str();
-        //cout<<"AS "<<as_num<<" is up!"<<endl;
-        //create an Graph module
-        //Graph thegraph("AS1");
+        //read AS+Number file to read the number of vertices and the topology of AS network
         ifstream inf(asfile.c_str());
         inf >> tmpasnum;
         inf >> num_vertices;
+        
+        //TODO: Can have num_vertices in ARSEERVEr not to define it twice. 
         ARSERVER.AR_BGP.num_vertices = num_vertices;
         ARSERVER.IPCE_module.num_vertices = num_vertices;
+        
+        //read the intra network topology(u,v,b,w) from AS file and define the graph object in ARserver
         while (inf >> node_u && node_u != 0) {
             if (node_u == -1) {
                 break;
             }
             inf >> node_v;
+            //TODO: weight is not assigned to graph
             inf >> edge_weight;
             inf >> edge_band;
             Edge tmp;
