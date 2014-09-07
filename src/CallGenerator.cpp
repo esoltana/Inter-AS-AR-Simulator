@@ -23,9 +23,9 @@ CallGenerator::CallGenerator(int as_num) {
     dest_node = 1;
 }
 
-void CallGenerator::readNodeVector(string dir) {
+void CallGenerator::readNodeVector(int[] nodeNumArray) {
     total_node = 0;
-    int node;
+    /*int node;
     ifstream inf(dir.c_str());
     if (inf.is_open()) {
         while (inf >> node) {
@@ -34,6 +34,10 @@ void CallGenerator::readNodeVector(string dir) {
     } else {
         cout << "Unable to open node vector for AS" << asnum << "!";
     }
+    */
+    for(int i=0; i<nodeNumArray.size; i++)
+        nodevec.push_back(nodeNumArray[i]);
+        
     for (int i = 0; i < nodevec.size(); i++)
         total_node += nodevec[i];
     //initialize the matrix
