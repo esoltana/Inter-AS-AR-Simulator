@@ -6,7 +6,7 @@ using namespace std;
 class CallGenerator {
 public:
     CallGenerator(int as_num);
-    void readNodeVector(string dir);
+    void readNodeVector(int[] nodeNumArray);
     void mapNode(int index);
     int mapIndex(int AS_num, int vertex_num);
     void generateCall(double arr, int windowsize, int leadtime,      int slot_length , int flag);
