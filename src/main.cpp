@@ -80,8 +80,10 @@ int main(int argc, char* argv[]) {
     while (def >> f_AS && def >> t_AS) {
         def >> delay;
         Delays.addDelay(f_AS, t_AS, delay);
-
     }
+    
+    //store nodenum of all ASes in this array
+    int nodeNum[num_of_AS];
     
     //Create the required modules (ARServer which includes: Scheduler, ARBGP, IPCE and EPCE) for each AS
     for (as_num = 1; as_num <= num_of_AS; as_num++) {
@@ -100,10 +102,14 @@ int main(int argc, char* argv[]) {
         stringstream asname;
         asname << "inputdata/AS" << as_num << "/AS" << as_num;
         string asfile = asname.str();
-        //read AS+Number file to read the number of vertices and the topology of AS network
+        
+        //read AS+Number file to find the number of vertices and the topology of AS network
         ifstream inf(asfile.c_str());
         inf >> tmpasnum;
         inf >> num_vertices;
+        
+        //save nodeNume in the array
+        nodeNum[as_num-1]=num_vertices;
         
         //TODO: Can have num_vertices in ARSEERVEr not to define it twice. 
         ARSERVER.AR_BGP.num_vertices = num_vertices;
@@ -158,8 +164,8 @@ int main(int argc, char* argv[]) {
        // ARSERVER.AR_BGP.getMCNProcessNumber(-1);
         ARSERVER_vector.push_back(ARSERVER);
     }
-    //test MCN_IDs
 
+    //test MCN_IDs
     for (int j = 0; j < ARSERVER_vector.size(); j++) {
         for (int i = 0; i < ARSERVER_vector[j].AR_BGP.MCN_IDs.size(); i++)
             cout << ARSERVER_vector[j].AR_BGP.MCN_IDs[i] << " ";
@@ -208,7 +214,8 @@ int main(int argc, char* argv[]) {
     vector<CallGenerator> CallGenerator_vector;
     for (int i = 1; i <= num_of_AS; i++) {
         CallGenerator callGen = CallGenerator(i);
-        callGen.readNodeVector("common/nodenum");
+        //callGen.readNodeVector("common/nodenum");
+        callGen.readNodeVector(nodeNum);
         callGen.readCommonFile("common/common_parameter");
         callGen.readMatrix("common/src_dst_prob_matrix");
         CallGenerator_vector.push_back(callGen);
