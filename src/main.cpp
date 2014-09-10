@@ -38,6 +38,8 @@ int main(int argc, char* argv[]) {
         cout << "usage: " << argv[0] << " number_of_simulation\n";
      */
     //int num_of_simulation = atoi(argv[1]);
+	
+	//TODO: organize the input data parameters (one folder for simulation parameters). 
     int num_of_simulation = 1;
     int num_of_AS;
     int as_num;
@@ -45,14 +47,20 @@ int main(int argc, char* argv[]) {
     int call_count = 0;
     double tmpt = 0;
     double last_update_time = 0;
+	//simulation related parameters 
     double simulation_time = 10;
     double next_active_time = 0;
+	//call generation related parameters 
     double arrival_rate = 50;
+	
+	//TODO: should read from a file(Service provider choose these values - how AR system is run - common)
     // each time slots of AR window equals this amount of time(seconds)
     int single_slot_time = 60;
-    // length of AR window(seconds)
+	//TODO: should read from a file
+    // length of AR window(seconds)(common)
     int AR_whole_time = 24 * 60 * 60 / single_slot_time;
-    int lead_time = 60/single_slot_time*3;
+    //TODO: should read from a file (common)
+	int lead_time = 60/single_slot_time*3;
     //the arrival time of previous call and the arrival time of current call
 
     int prev_call = 0;
