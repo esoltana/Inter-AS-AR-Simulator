@@ -134,11 +134,14 @@ public:
     int start_vertex;
     int end_vertex;
     double band;
+    double weight;
 };
 
 typedef struct {
     int u, v;
-    double b;
+    double bandwidth;
+    //TODO: is the weight a double or int value
+    double weight;
 } Edge;
 
 class GRAPH {
