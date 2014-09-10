@@ -5,6 +5,8 @@
  * Created on June 26, 2014, 8:56 PM
  */
 
+//Revised by Elahe on September 7, 2014
+
 #include <limits>
 #include <set>
 #include <map>
@@ -31,58 +33,40 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    //num of AS. Could be a input parameter 
-    /*
-    if (argc != 2) // argc should be 2 for correct execution
-        // We print argv[0] assuming it is the program name
-        cout << "usage: " << argv[0] << " number_of_simulation\n";
-     */
-    //int num_of_simulation = atoi(argv[1]);
+  
 	
-	//TODO: organize the input data parameters (one folder for simulation parameters). 
-    int num_of_simulation = 1;
+    //TODO: organize the input data parameters (one folder for simulation parameters). 
     int num_of_AS;
-    int as_num;
-    double dt = 0.01;
-    int call_count = 0;
-    double tmpt = 0;
-    double last_update_time = 0;
-	//simulation related parameters 
+
+    //TODO: Define Simulation Related Parameter
+    //simulation related parameters (use this time to continue receiving new calls)
     double simulation_time = 10;
-    double next_active_time = 0;
-	//call generation related parameters 
+    
+    //TODO: Define Call generation Parameter file (add common file to it)
+    //call generation related parameters 
     double arrival_rate = 50;
 	
-	//TODO: should read from a file(Service provider choose these values - how AR system is run - common)
+    //(Service provider choose these values - how AR system is run - common)
+    //TODO: Define ISP Configuration File
     // each time slots of AR window equals this amount of time(seconds)
     int single_slot_time = 60;
-	//TODO: should read from a file
     // length of AR window(seconds)(common)
     int AR_whole_time = 24 * 60 * 60 / single_slot_time;
-    //TODO: should read from a file (common)
-	int lead_time = 60/single_slot_time*3;
-    //the arrival time of previous call and the arrival time of current call
-
-    int prev_call = 0;
-    double curr_call = 0;
-    int curr_update = 0;
-    //the time to send the BGP update 
-    double BGP_update_send = 0;
-    //the AS number is the process number
-    //there are three types of processes: 1) ARserver; 2) call generator 3) additional call flows
-    //read in the mpi file in inputdata folder, the first parameter specifies the number of ASes, the second parameter 
-    //specifies the number of additional call flows
-    //ARserver processes
-    int count_t = 0;
+    //should read from a file (common)
+    int lead_time = 60/single_slot_time*3;  
+    
+    
+    //define a vector to keep the AR servers of all the ASs
     vector<ARserver> ARSERVER_vector;
 
-
+    //TODO: understand what exactly in does
     ///////read in files that contain the delays between different ASes
     string delay_file = "DelayFile";
     ifstream def(delay_file.c_str());
     int f_AS, t_AS;
     double delay;
     def >> num_of_AS;
+
     //create the object that contains the delay parameters
     DelayFile Delays(num_of_AS);
     while (def >> f_AS && def >> t_AS) {
@@ -93,19 +77,15 @@ int main(int argc, char* argv[]) {
     //store nodenum of all ASes in this array
     int nodeNum[num_of_AS];
     
-    //Create the required modules (ARServer which includes: Scheduler, ARBGP, IPCE and EPCE) for each AS
-    for (as_num = 1; as_num <= num_of_AS; as_num++) {
+    //Create the required modules for each AS (ARServer which includes: Scheduler, ARBGP, IPCE and EPCE) for each AS
+    for (int as_num = 1; as_num <= num_of_AS; as_num++) {
+
         //make an ARServer instance for each AS
         ARserver ARSERVER = ARserver(as_num, AR_whole_time, 60);
         int tmpasnum, num_vertices, node_u, node_v, edge_weight, edge_band, start_AS, end_AS;
         string start_AS_vertex;
         string end_AS_vertex;
-        
-        //delete
-        vector<Edge> intra_edges;
-        vector<Inter_AS_Links> InterASLinks_table;
-        //
-        
+              
         //define the AS name which is AS+number
         stringstream asname;
         asname << "inputdata/AS" << as_num << "/AS" << as_num;
@@ -129,15 +109,18 @@ int main(int argc, char* argv[]) {
                 break;
             }
             inf >> node_v;
-            //TODO: weight is not assigned to graph
             inf >> edge_weight;
             inf >> edge_band;
+          
             Edge tmp;
             tmp.u = node_u;
             tmp.v = node_v;
-            tmp.b = edge_band;
+            tmp.bandwidth = edge_band;
+            tmp.weight=edge_weight;
+            
             ARSERVER.the_graph.intra_edges.push_back(tmp);
         }
+        //Read the Inter AS links
         while (inf >> start_AS_vertex) {
             int tmpindex = start_AS_vertex.find(":");
             start_AS = atoi(start_AS_vertex.substr(0, tmpindex).c_str());
@@ -153,12 +136,14 @@ int main(int argc, char* argv[]) {
             inter_link_entry.to_AS = end_AS;
             inter_link_entry.start_vertex = node_u;
             inter_link_entry.end_vertex = node_v;
+            Inter_AS_Links.weight=edge_weight;
             //if want to change the strategy of assigning bandwidth to a predefined mode:like all inter_domain links are 
             //64Gbps, please modify here
             inter_link_entry.band = edge_band;
             // inter_link_entry.theLink.constructTable(windowSize,windowExt);
             ARSERVER.the_graph.InterASLinks_table.push_back(inter_link_entry);
         }
+        
         for (int i = 0; i < ARSERVER.the_graph.InterASLinks_table.size(); i++) {
             //outgoing links
             if (ARSERVER.the_graph.InterASLinks_table[i].from_AS == as_num) {
@@ -167,73 +152,46 @@ int main(int argc, char* argv[]) {
                 ARSERVER.AR_BGP.addMCNAccess(ARSERVER.the_graph.InterASLinks_table[i].from_AS, 2, ARSERVER.the_graph.InterASLinks_table[i].start_vertex, ARSERVER.the_graph.InterASLinks_table[i].end_vertex);
             }
         }
+        //TODO: Should completely study it in ARBGP module
         ARSERVER.AR_BGP.getMCNList();
-        //AS_num starts from 1 while the index of AS_vector start from 0
-       // ARSERVER.AR_BGP.getMCNProcessNumber(-1);
+   
+       //Add the AR server to the related vector
         ARSERVER_vector.push_back(ARSERVER);
     }
 
-    //test MCN_IDs
-    for (int j = 0; j < ARSERVER_vector.size(); j++) {
-        for (int i = 0; i < ARSERVER_vector[j].AR_BGP.MCN_IDs.size(); i++)
-            cout << ARSERVER_vector[j].AR_BGP.MCN_IDs[i] << " ";
-        cout << endl;
-    }
-
-
-    /*
-    int mcount = ARSERVER.AR_BGP.MCN_IDs.size();
-    while(mcount>0)
-    {
-            MPI_Recv(&recvmess,200,MPI_CHAR,MPI_ANY_SOURCE,BGPTAG,MPI_COMM_WORLD,&status);
-            mcount--;
-            string recvd(recvmess);
-            cout<< "AS "<<as_num<<" received: "<<recvd<<endl;
-    }
-     */
-    //print RIB
-
-    
-
-    //read in calls(one giant call file)
-    //readcall READCALL;
-    stringstream filename;
-   // filename << "callfile" << num_of_simulation;
-    //string callfile = filename.str();
-    //READCALL.init(callfile.c_str());
-    //set up BAn
-    //READCALL.ReadCall(3);
-    //set up two queues(BGP update and AR) as well as next call time(curr_call)
-    //ARBGP_queue ARBGP_Q;
+    //Priority Queue to keep ARBGP calls/msgs in order (Priority Queue needs comparateor function)
     priority_queue<ARBGP_Node, vector<ARBGP_Node>, MyComparatorARBGP> ARBGP_Q;
+    //Priority Queue to keep ARSchedule calls
     priority_queue<ARSchedule_Node, vector<ARSchedule_Node>, MyComparatorARSchedule> ARSchedule_Q;
-   // ARSchedule_queue ARSchedule_Q;
-   // curr_call = READCALL.callarrive[call_count];
+    //Priority Queue to save Routing Request calls
+    priority_queue<Call_Node, vector<Call_Node>, MyComparatorCALL> CALL_Q;
+    
+    //TODO: Better to use graph class instead of creating a new topology instance in IPCE
+    //All the IPCE module ASs read intra network topology
     for (int j = 0; j < ARSERVER_vector.size(); j++)
-    ARSERVER_vector[j].IPCE_module.readTopology(ARSERVER_vector[j].the_graph.intra_edges);
-    //vector<int> arvec;
-   // arvec.push_back(2);
-   // arvec.push_back(3);
-   // arvec.push_back(4);
-    //ARSERVER_vector[0].IPCE_module.findPath(2, 4, 5, 5, arvec);
+        ARSERVER_vector[j].IPCE_module.readTopology(ARSERVER_vector[j].the_graph.intra_edges);
 
 
     //create vector of call generators
     vector<CallGenerator> CallGenerator_vector;
     for (int i = 1; i <= num_of_AS; i++) {
         CallGenerator callGen = CallGenerator(i);
-        //callGen.readNodeVector("common/nodenum");
         callGen.readNodeVector(nodeNum);
         callGen.readCommonFile("common/common_parameter");
-        callGen.readMatrix("common/src_dst_prob_matrix");
+        callGen.readprobMatrix("common/src_dst_prob_matrix");
         CallGenerator_vector.push_back(callGen);
     }
-    priority_queue<Call_Node, vector<Call_Node>, MyComparatorCALL> CALL_Q;
+    
+   
     //generate the first round of calls
+    //for each AS, execute the call generator to generate a request
     for (int i = 0; i < CallGenerator_vector.size(); i++) {
         Call_Node tmp;
+        //TODO: it should be changed. generateCall should receive the arrivale rate and produce arrival time within it
         double arrival_time = expon(arrival_rate);
+        //generate a call according to input parameters
         CallGenerator_vector[i].generateCall(arrival_time,AR_whole_time,lead_time,single_slot_time,1);
+        //save the produced request parameters in Queue
         tmp.arrival_time = arrival_time;
         tmp.from_AS = i + 1;
         tmp.from_node = CallGenerator_vector[i].source_node;
@@ -241,89 +199,77 @@ int main(int argc, char* argv[]) {
         tmp.to_node = CallGenerator_vector[i].dest_node;
         tmp.duration = CallGenerator_vector[i].Duration;
         tmp.capacity = CallGenerator_vector[i].Capacity;
+        //also save the AR options in the queue
         for (int j = 0; j < CallGenerator_vector[i].ARvec.size(); j++)
             tmp.AR_vec.push_back(CallGenerator_vector[i].ARvec[j]);
+        //push the request in Call Queue
         CALL_Q.push(tmp);
     }
 
-    curr_call = CALL_Q.top().arrival_time;
-    /*
-    for(int i = 0; i < ARSERVER_vector.size(); i++)
-    {
-        int t = i+1;
-        cout<<"Inter Links for AS "<<t<<":"<<endl;
-        
-        for(map<int,MCN>::iterator iter = ARSERVER_vector[i].AR_BGP.MCNlist.begin(); iter != ARSERVER_vector[i].AR_BGP.MCNlist.end(); iter++)
-        {
-            cout<<"To AS "<<iter->first<<endl;
-            for(int k = 0; k < iter->second.egress_links.size(); k++)
-                cout<<iter->second.egress_links[k].first<<" "<< iter->second.egress_links[k].second<<endl;
-        }
-       
-        for(int j = 0; j < ARSERVER_vector[i].the_graph.InterASLinks_table.size(); j++)
-        {
-            cout<<"From AS "<<ARSERVER_vector[i].the_graph.InterASLinks_table[j].from_AS<<"To AS "<<ARSERVER_vector[i].the_graph.InterASLinks_table[j].to_AS<<endl;
-            cout<<ARSERVER_vector[i].the_graph.InterASLinks_table[j].start_vertex<<" "<<ARSERVER_vector[i].the_graph.InterASLinks_table[j].end_vertex<<endl;
-        }
-    }
-    */
-    
-    
-    
+    //the arrival time of earliest Routing request call
+    double ReqCall_earliest_time = 0;
+    //get the execution time of earliest routing request from Call queue
+    ReqCall_earliest_time = CALL_Q.top().arrival_time;
+  
+    //the arrival time of sending BGP Update
+    double BGP_update_time = 0;
+    double current_time = 0;
     
     //main loop
-    while (next_active_time <= simulation_time) {
-        // cout << "next:" << next_active_time << endl;
-        // cout<<ARBGP_Q.top().do_update_time<<endl;
-        //case_flag = 1: ARBGP
-        //case_flag = 2: ARschedule
-        //case_flag = 3: process call
+    //until the request time is within simulation time continue
+    while (current_time <= simulation_time) {
+        
+        //Variables for saving the earliest time of ARBGP calls and ARSchedule
         double ARBGP_earliest_time = DBL_MAX;
         double ARSchedule_earliest_time = DBL_MAX;
+        //variable to show which time of call should be executed now
+        int case_flag;
+        
+        //TODO: the names in Graph Elements should be changed
+        //get the execution time of earliest call in ARBGP Queue
         if (!ARBGP_Q.empty()) {
             ARBGP_earliest_time = ARBGP_Q.top().do_update_time;
-            //cout<<"thetop:"<<ARBGP_Q.top().do_update_time<<endl;
         }
+        
+        //get the execution time of earliest call in ARSchedule Queue
         if(!ARSchedule_Q.empty())
         {
             ARSchedule_earliest_time = ARSchedule_Q.top().do_decision_time;
         }
-        //cout<<"BGP time:"<<ARBGP_earliest_time<<" "<<curr_call<<" "<<ARSchedule_Q.earliest_time<<" "<<BGP_update_send<<endl;
-        int case_flag;
-        if (ARBGP_earliest_time <= curr_call && ARBGP_earliest_time <= ARSchedule_earliest_time && ARBGP_earliest_time <= BGP_update_send)
+       //Check if ARBGP time is the smallest one
+        if (ARBGP_earliest_time <= ReqCall_earliest_time && ARBGP_earliest_time <= ARSchedule_earliest_time && ARBGP_earliest_time <= BGP_update_time)
             case_flag = 1;
-        else if (ARSchedule_earliest_time <= curr_call && ARSchedule_earliest_time <= ARBGP_earliest_time && ARSchedule_earliest_time <= BGP_update_send)
+        //check if ARSchedule time is the smallest
+        else if (ARSchedule_earliest_time <= ReqCall_earliest_time && ARSchedule_earliest_time <= ARBGP_earliest_time && ARSchedule_earliest_time <= BGP_update_time)
             case_flag = 2;
-        else if (curr_call <= ARBGP_earliest_time && curr_call <= ARSchedule_earliest_time && curr_call <= BGP_update_send)
+        //check if routing Request Call is the smallest
+        else if (ReqCall_earliest_time <= ARBGP_earliest_time && ReqCall_earliest_time <= ARSchedule_earliest_time && ReqCall_earliest_time <= BGP_update_time)
             case_flag = 3;
         else
+            //else the smallest in BGP update message
             case_flag = 4;
 
         switch (case_flag) {
             case 1:
                 //do ARBGP update
-
-                next_active_time = ARBGP_Q.top().do_update_time;
-                // ARBGP_Node * BGP_message;
-                // BGP_message = ARBGP_Q.top();
+                
+                //update the current time to the current executing call
+                current_time = ARBGP_Q.top().do_update_time;
+                
+                //Action: print the ARBGP call
                 cout << "do BGP update at:" << ARBGP_Q.top().do_update_time << endl;
-
-
-                //  cout << "to" << ARBGP_Q.top().to_AS << endl;
+                //TODO: Study delailed about what this function does.
                 ARSERVER_vector[ARBGP_Q.top().to_AS - 1].AR_BGP.recvUpdate(ARBGP_Q.top().from_AS, ARBGP_Q.top().NLRI_vector);
-                //  cout << "do update!" << endl;
-                //for (int i = 0; i < ARBGP_Q.top().NLRI_vector.size(); i++)
-                //     cout << ARBGP_Q.top().NLRI_vector[i].toString() << endl;
-
+                //pop the executed call
                 ARBGP_Q.pop();
 
                 break;
             case 2:
             {
-                //do AR
-                next_active_time = ARSchedule_Q.top().do_decision_time;
-                //ARSchedule_Node * AR_message;
-                //AR_message = ARSchedule_Q.popNode();
+                //do AR Schedule Call
+                //update the current time to the current executing call
+                current_time = ARSchedule_Q.top().do_decision_time;
+             
                 if(ARSchedule_Q.top().from_AS == ARSchedule_Q.top().to_AS)
                 {
                     //intra call
@@ -355,7 +301,7 @@ int main(int argc, char* argv[]) {
             case 3:
             {
                 //accept a call
-                //cout << "process call:" << curr_call << endl;
+                //cout << "process call:" << ReqCall_earliest_time << endl;
                 /*
                 call_count++;
                 if (call_count >= READCALL.linecount) {
@@ -378,10 +324,10 @@ int main(int argc, char* argv[]) {
                     }
                     return 1;
                 }
-                curr_call = READCALL.callarrive[call_count];
-                next_active_time = curr_call;
+                ReqCall_earliest_time = READCALL.callarrive[call_count];
+                current_time = ReqCall_earliest_time;
                  */
-                next_active_time = CALL_Q.top().arrival_time;
+                current_time = CALL_Q.top().arrival_time;
                 cout << "process a call:" << CALL_Q.top().arrival_time << " " << CALL_Q.top().capacity << " " << CALL_Q.top().duration << " ";
                 for (int i = 0; i < CALL_Q.top().AR_vec.size(); i++) {
                     cout << CALL_Q.top().AR_vec[i] << " ";
@@ -417,48 +363,25 @@ int main(int argc, char* argv[]) {
                     tmp.AR_vec.push_back(CallGenerator_vector[CALL_Q.top().from_AS-1].ARvec[j]);
                 CALL_Q.pop();
                 CALL_Q.push(tmp);
-                curr_call = CALL_Q.top().arrival_time;
+                ReqCall_earliest_time = CALL_Q.top().arrival_time;
                 break;
             }
             case 4:
                 //send BGP updates
-                next_active_time = BGP_update_send;
-                BGP_update_send += MRAI;
-                if(next_active_time == 0)
+                current_time = BGP_update_time;
+                BGP_update_time += MRAI;
+                if(current_time == 0)
                 for (int i = 0; i < ARSERVER_vector.size(); i++) {
                     ARSERVER_vector[i].AR_BGP.constructUpdate(0);
                 }
                 for (int i = 0; i < ARSERVER_vector.size(); i++) {
-                    ARSERVER_vector[i].AR_BGP.sendUpdate(next_active_time, ARBGP_Q, Delays,AR_whole_time,ARSERVER_vector[i].IPCE_module );
+                    ARSERVER_vector[i].AR_BGP.sendUpdate(current_time, ARBGP_Q, Delays,AR_whole_time,ARSERVER_vector[i].IPCE_module );
                 }
                 break;
         }
 
     }
-
-
-    for (int i = 0; i < ARSERVER_vector.size(); i++) {
-        int as = i + 1;
-        cout << "AS" << as << ":" << endl;
-        cout<<"reservation window:"<<endl;
-        for(map<int, EdgeTable>::iterator iter = ARSERVER_vector[i].IPCE_module.intraASLinksAR.begin(); iter != ARSERVER_vector[i].IPCE_module.intraASLinksAR.end(); ++iter)
-        {
-            cout<<"from "<<iter->first/1000 <<" to "<<iter->first%1000<<":";
-            iter->second.printTable();
-        }
-/*
-        for (std::map<Node, vector<NLRI> >::iterator iter = ARSERVER_vector[i].AR_BGP.RIB.begin(); iter != ARSERVER_vector[i].AR_BGP.RIB.end(); ++iter) {
-            int asnum = iter->first.as_num;
-            int node_num = iter->first.vertex_num;
-            cout << asnum << " " << node_num << ":";
-            for (int i = 0; i < iter->second.size(); i++) {
-                cout << iter->second[i].toString() << " "<<endl;
-            }
-            cout << endl;
-
-        }
-*/
-    }
+    
 
     return 0;
 }
