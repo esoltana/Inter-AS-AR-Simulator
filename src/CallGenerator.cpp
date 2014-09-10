@@ -1,6 +1,8 @@
 // Zhe Song, University of Virginia
 // June 2014
 
+// Revised by Elahe, University of Virginia, Sep 2014
+
 #include "CallGenerator.h"
 #include "randgen.h"
 #include <stdlib.h>
@@ -16,63 +18,63 @@
 using namespace std;
 
 CallGenerator::CallGenerator(int as_num) {
+    //the index of AS
     asnum = as_num;
+    //An array which used for producing random value to choos USST or EST in the randGen file
     USST_EST[0] = 1.0;
     USST_EST[1] = 2.0;
+    //the index of generated Dest AS
     dest_AS = 1;
+    //the index of genereated Dest node
     dest_node = 1;
 }
 
-void CallGenerator::readNodeVector(int[] nodeNumArray) {
+//read the number of nodes in all the ASs
+void CallGenerator::readNodeVector(int nodeNumArray[]) {
     total_node = 0;
-    /*int node;
-    ifstream inf(dir.c_str());
-    if (inf.is_open()) {
-        while (inf >> node) {
-            nodevec.push_back(node);
-        }
-    } else {
-        cout << "Unable to open node vector for AS" << asnum << "!";
-    }
-    */
-    for(int i=0; i<nodeNumArray.size; i++)
+    //find the size of array (which is the number of ASs)
+    int arraySize=sizeof(nodeNumArray)/sizeof(nodeNumArray[0]);
+    
+    //push the node numbers in the vector
+    for(int i=0; i<arraySize; i++)
         nodevec.push_back(nodeNumArray[i]);
-        
+    
+    //find the total size of node numbers
     for (int i = 0; i < nodevec.size(); i++)
         total_node += nodevec[i];
-    //initialize the matrix
-    //to be modified later
-    //theMatrix = new double[75][75];
-    inf.close();
+        
 }
 
 /*
-Input (dir): Full path of the file that has the common parameters
+Input (path): Full path of the file that has the common parameters
  For example, call the function below with this argument
 "C:\Users\mmv\Dropbox\AAAMEDPaperProject\common\common_parameter"
 
-"dir" is poorly named because it sounds like directory, but it needs to be a file with a full path or path relative to the source file location
-
-What does the function do: Read in every parameter in the file and assign values to corresponding variables of the CallGenerator object
-
-To test if it worked correctly: in the test main.cpp program you write, print out CallGenerator object instance and see if the variables were assigned properly.
-
-See the above folder for a common_parameter file to use as input.
-
+Function Read every parameter in the file and assign values to corresponding variables of the CallGenerator object
 */
-void CallGenerator::readCommonFile(string dir)
+void CallGenerator::readCommonFile(string path)
 {
-
-    ifstream inf(dir.c_str());
+    // define input stream
+    ifstream inf(path.c_str());
+    
+    //if the input stream opened correctly
     if (inf.is_open()) {
+        
+        //define a line string
         string line;
+        //while reading lines from the input file
         while (getline(inf, line)) {
+            //check if it is a comment line, ignore it
             if (line[0] == '/' && line[1] == '/')
                 continue;
             else {
+                
                 stringstream lineStream(line);
                 string indicator;
+                //read the first word of the line to find what is the type of call (USST or EST)
                 lineStream >> indicator;
+                
+               // read the next parameters
                 if (indicator == "USST") {
                     lineStream >> USSTcap >> USSTduration >> USSTn >> USST_EST_prob[0];
                 } else if (indicator == "EST") {
@@ -85,27 +87,29 @@ void CallGenerator::readCommonFile(string dir)
     } else {
         cout << "Unable to open common file for AS" << asnum << "!";
     }
+    
+    //close the input file
     inf.close();
 }
 
 
 /*
 
-Input: Same as for readCommonFile function. But the file needs to be a src_dst_prob_matrix.
+Input: path of input file which is src_dst_prob_matrix.
 
 Example input file:C:\Users\mmv\Dropbox\AAAMEDPaperProject\common\src_dst_prob_matrix
 
-Job of this function: Load the matrix from the file into the CallGenerator variable theMatrix (see CallGenerator.h - this is a private variable)
-
-Output: test as recommended for readCommonFile
-
+Function loads the matrix from the file into the CallGenerator variable "theMatrix"
 */
-void CallGenerator::readMatrix(string dir) {
-    ifstream inf(dir.c_str());
+void CallGenerator::readprobMatrix(string path) {
+    //define an input stream
+    ifstream inf(path.c_str());
+    //if it opened correctly
     if (inf.is_open()) {
+        //read 2D matrix and save it in the array probMatrix
         for (int i = 0; i < total_node; i++) {
             for (int j = 0; j < total_node; j++) {
-                inf >> theMatrix[i][j];
+                inf >> probMatrix[i][j];
             }
         }
     } else {
@@ -139,17 +143,21 @@ void CallGenerator::mapNode(int index) {
 
 /*
  Input: The AS number and the node number of a node. 
- Output: An index number(The input of the function mapIndex, see description of mapNode)
- job of the function: This function is the reserve version of the above function mapNode(); So if the AS number is 1 and the node number is 5, then the output index is 5
+ Output: An index number which shows the row of that specific node in prob matrix
+ job: find the row number in the prob matrix; So if the AS number is 1 and the node number is 5, then the output index is 5
  */
 
 int CallGenerator::mapIndex(int AS_num, int vertex_num) {
     int index = 0;
+    //add the number of nodes of ASs before the AS number of this node
     for (int i = 0; i < (AS_num - 1); i++) {
         index += nodevec[i];
     }
+    //add the number of node (to add the number of nodes which are before this node)
     index += vertex_num;
+    //subtract one because the index starts form 0
     index -= 1;
+    
     return index;
 }
 /*
@@ -169,92 +177,111 @@ int CallGenerator::mapIndex(int AS_num, int vertex_num) {
 */
 void CallGenerator::generateCall(double arr, int windowsize, int leadtime, int slot_length, int flag) {
 
-    /* initialize random seed: */
-    // srand (time(NULL));
     if (ARvec.size() != 0)
         ARvec.clear();
+
     //generate random number for source vertex
     if (asnum > nodevec.size())
         cout << "More AS than expected!" << endl;
+    
+    //get the number of nodes for this AS
     int vertices_num_of_this_AS = nodevec[asnum - 1];
-    //int vertices_num_of_this_AS = 3;
+
+    //Generate random source node
     source_node = (rand() % vertices_num_of_this_AS) + 1;
-    //	source_node = 1;
-    //generate random destination
+
+    //generate an index for this node 
     int thisindex = mapIndex(asnum, source_node);
-    //cout<<"The index is :"<<thisindex <<"      "<<"!"<<endl;
+    
     double probvec[total_node];
+    //get the probability values of this specific source node (according to the row number)
     for (int i = 0; i < total_node; i++)
-        probvec[i] = theMatrix[thisindex][i];
+        probvec[i] = probMatrix[thisindex][i];
+    
+    
+    //save the ASindex in the array to use it for producing random value for which AS to be Dest AS
     double candvec[total_node];
     for (int i = 0; i < total_node; i++)
         candvec[i] = (double) i;
+    
+    
     int tmpindex;
+    
     //inter-domain
     if (flag == 0) {
+        //TODO: How does exactly this function work?
+        //produce a random dest AS and dest nodeNum in index format
         tmpindex = (int) rand_prob_vector(candvec, probvec, total_node);
+        //convert the produced index to the corresponding dest_AS and Dest_Node
         mapNode(tmpindex);
-    } else
-        //intra-domain
+    } else   //intra-domain
     {
+        //for intra domain the Dest_AS is within this AS and equals asnum
         dest_AS = asnum;
+        //produce a random dest_node
         dest_node = (rand() % vertices_num_of_this_AS) + 1;
+        //continue producing a new dest node if it equals with source node
         while (dest_node == source_node)
             dest_node = (rand() % vertices_num_of_this_AS) + 1;
     }
-    //int tmpindex = 5;
-
+    
+    //TODO: What does EST and USST exactly mean?
+    
     //whether it's a USST call or EST call
     double indicator = rand_prob_vector(USST_EST, USST_EST_prob, 2);
-    //double indicator = 1.0;
+    
     //USST
     if (indicator == 1.0) {
+        //this values were determined based on common file 
         Capacity = USSTcap;
         Duration = USSTduration * 60 / slot_length;
-        //generate AR time vector
-
+        
+        //generate AR option times according to USSTn value
         for (int i = 0; i < USSTn; i++) {
             int ARoption = 0;
+            //if the AR vector is not empty produce one ARoption randomely which is not equal to the last inserted element in ARvec
             if (ARvec.size() != 0) {
                 do {
                     ARoption = rand() % (windowsize) + leadtime;
                 } while (find(ARvec.begin(), ARvec.end(), ARoption) != ARvec.end());
             } else
+                //if ARvec is empty, produce a random ARoption (doesn't need to check the last element of ARvec)
                 ARoption = rand() % (24 * 60) + 1;
+            //push the produced AR option into ARvec
             ARvec.push_back(ARoption);
         }
-
+        //sort the AR options in increasing order
         sort(ARvec.begin(), ARvec.end());
 
 
     }//EST
     else if (indicator == 2.0) {
         Capacity = ESTcap;
+        //produce the duration value according to zipf distribution
         Duration = (zipf(zipf_alpha, (ESTduration_max - ESTduration_min)) + ESTduration_min)*60 / slot_length;
+        //push the sequential AR options based on the number of ESTn
         for (int i = 0; i < ESTn; i++) {
-            ARvec.push_back(leadtime + i);
+            ARvec.push_back(leadtime + i); //TODO: arrival time + leadtime + i
         }
     } else
         cout << "USST EST selection error!" << endl;
-
+    
+    
+    //save the produced call in a file named Call_for_AS+number
     stringstream ss;
     ss << arr << " " << ARvec[0];
     for (int i = 1; i < ARvec.size(); i++) {
         ss << " " << ARvec[i];
     }
     ss << " " << Capacity << " " << Duration << " " << source_node << " " << dest_AS << " " << dest_node;
-    //callstring = ss.str();
+    
     stringstream sss;
     sss << "Call_for_AS" << asnum;
     ofstream fout;
     fout.open(sss.str().c_str(), ios::app);
-    //for(int i = 0; i < number_amount; i++)
-    //fout << callstring << endl;
-    //fout<<endl;
+    
     fout.close();
-    //for(int i = 0; i < callstring.length(); i++)
-    //output_call[i] = callstring[i];
-
+    
 }
 
 
