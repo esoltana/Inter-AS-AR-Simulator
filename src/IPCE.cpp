@@ -24,7 +24,7 @@ void IPCE::readTopology(vector<Edge> intra_edges) {
         int node2 = intra_edges[i].v;
         int index = node1 * 1000 + node2;
         EdgeTable tmp;
-        tmp.getBand(intra_edges[i].b);
+        tmp.getBand(intra_edges[i].bandwidth);
         tmp.constructTable(windowSize, extSize);
         intraASLinksAR[index] = tmp;
 

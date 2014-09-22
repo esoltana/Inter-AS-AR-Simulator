@@ -37,12 +37,12 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/ARBGP.o \
 	${OBJECTDIR}/ARserver.o \
-	${OBJECTDIR}/CallGenerator.o \
 	${OBJECTDIR}/Graph.o \
 	${OBJECTDIR}/IPCE.o \
+	${OBJECTDIR}/callgenerator/CallGenerator.o \
 	${OBJECTDIR}/intradijkstra.o \
 	${OBJECTDIR}/main.o \
-	${OBJECTDIR}/randgen.o \
+	${OBJECTDIR}/randgen/randgen.o \
 	${OBJECTDIR}/readcall.o
 
 
@@ -72,48 +72,48 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/src: ${OBJECTFILES}
 
 ${OBJECTDIR}/ARBGP.o: ARBGP.cpp 
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/ARBGP.o ARBGP.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ARBGP.o ARBGP.cpp
 
 ${OBJECTDIR}/ARserver.o: ARserver.cpp 
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/ARserver.o ARserver.cpp
-
-${OBJECTDIR}/CallGenerator.o: CallGenerator.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/CallGenerator.o CallGenerator.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ARserver.o ARserver.cpp
 
 ${OBJECTDIR}/Graph.o: Graph.cpp 
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/Graph.o Graph.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Graph.o Graph.cpp
 
 ${OBJECTDIR}/IPCE.o: IPCE.cpp 
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/IPCE.o IPCE.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/IPCE.o IPCE.cpp
+
+${OBJECTDIR}/callgenerator/CallGenerator.o: callgenerator/CallGenerator.cpp 
+	${MKDIR} -p ${OBJECTDIR}/callgenerator
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/callgenerator/CallGenerator.o callgenerator/CallGenerator.cpp
 
 ${OBJECTDIR}/intradijkstra.o: intradijkstra.cpp 
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/intradijkstra.o intradijkstra.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/intradijkstra.o intradijkstra.cpp
 
 ${OBJECTDIR}/main.o: main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/main.o main.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.cpp
 
-${OBJECTDIR}/randgen.o: randgen.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.c) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/randgen.o randgen.c
+${OBJECTDIR}/randgen/randgen.o: randgen/randgen.c 
+	${MKDIR} -p ${OBJECTDIR}/randgen
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/randgen/randgen.o randgen/randgen.c
 
 ${OBJECTDIR}/readcall.o: readcall.cpp 
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/readcall.o readcall.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/readcall.o readcall.cpp
 
 # Subprojects
 .build-subprojects:

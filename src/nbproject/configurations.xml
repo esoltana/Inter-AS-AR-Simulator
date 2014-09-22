@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="88">
+<configurationDescriptor version="94">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
       <itemPath>ARBGP.h</itemPath>
       <itemPath>ARserver.h</itemPath>
-      <itemPath>CallGenerator.h</itemPath>
+      <itemPath>callgenerator/CallGenerator.h</itemPath>
       <itemPath>Graph.h</itemPath>
       <itemPath>GraphElements.h</itemPath>
       <itemPath>IPCE.h</itemPath>
       <itemPath>intradijkstra.h</itemPath>
-      <itemPath>randgen.h</itemPath>
+      <itemPath>randgen/randgen.h</itemPath>
       <itemPath>readcall.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -23,12 +23,12 @@
                    projectFiles="true">
       <itemPath>ARBGP.cpp</itemPath>
       <itemPath>ARserver.cpp</itemPath>
-      <itemPath>CallGenerator.cpp</itemPath>
+      <itemPath>callgenerator/CallGenerator.cpp</itemPath>
       <itemPath>Graph.cpp</itemPath>
       <itemPath>IPCE.cpp</itemPath>
       <itemPath>intradijkstra.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
-      <itemPath>randgen.c</itemPath>
+      <itemPath>randgen/randgen.c</itemPath>
       <itemPath>readcall.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
@@ -47,8 +47,9 @@
   <confs>
     <conf name="Debug" type="1">
       <toolsSet>
-        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
         <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <compileType>
       </compileType>
@@ -60,10 +61,6 @@
       </item>
       <item path="ARserver.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="CallGenerator.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="CallGenerator.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="Graph.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="Graph.h" ex="false" tool="3" flavor2="0">
@@ -74,15 +71,19 @@
       </item>
       <item path="IPCE.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="callgenerator/CallGenerator.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="callgenerator/CallGenerator.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="intradijkstra.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="intradijkstra.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="randgen.c" ex="false" tool="0" flavor2="0">
+      <item path="randgen/randgen.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="randgen.h" ex="false" tool="3" flavor2="0">
+      <item path="randgen/randgen.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="readcall.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -91,8 +92,9 @@
     </conf>
     <conf name="Release" type="1">
       <toolsSet>
-        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
         <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <compileType>
         <cTool>
@@ -116,10 +118,6 @@
       </item>
       <item path="ARserver.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="CallGenerator.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="CallGenerator.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="Graph.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="Graph.h" ex="false" tool="3" flavor2="0">
@@ -130,15 +128,19 @@
       </item>
       <item path="IPCE.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="callgenerator/CallGenerator.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="callgenerator/CallGenerator.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="intradijkstra.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="intradijkstra.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="randgen.c" ex="false" tool="0" flavor2="0">
+      <item path="randgen/randgen.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="randgen.h" ex="false" tool="3" flavor2="0">
+      <item path="randgen/randgen.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="readcall.cpp" ex="false" tool="1" flavor2="0">
       </item>

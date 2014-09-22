@@ -35,51 +35,60 @@ using namespace std;
 int main(int argc, char* argv[]) {
   
 	
-    //TODO: organize the input data parameters (one folder for simulation parameters). 
-    int num_of_AS;
-
-    //TODO: Define Simulation Related Parameter
-    //simulation related parameters (use this time to continue receiving new calls)
-    double simulation_time = 10;
+    //temp variable used for showing the path of files
+    string path;
+      
+    /*simulation related parameters */
+    //use this time to continue receiving new calls
+    double simulation_time;
+    int num_of_ASs;
+    path="inputParameters/Simulation-related-input-params";
+    ifstream ifs(path.c_str());
+    ifs >> num_of_ASs;
+    ifs >> simulation_time;
     
-    //TODO: Define Call generation Parameter file (add common file to it)
-    //call generation related parameters 
-    double arrival_rate = 50;
 	
-    //(Service provider choose these values - how AR system is run - common)
-    //TODO: Define ISP Configuration File
-    // each time slots of AR window equals this amount of time(seconds)
-    int single_slot_time = 60;
-    // length of AR window(seconds)(common)
-    int AR_whole_time = 24 * 60 * 60 / single_slot_time;
-    //should read from a file (common)
-    int lead_time = 60/single_slot_time*3;  
+     /*AR System related parameters*/
+    // Duration of timeslot in second
+    int single_slot_time;
+    // length of AR window(seconds)
+    int AR_whole_time;
+     //Lead time in timeslots
+    int lead_time;
+    path="inputParameters/AR-system-input-params";
+    ifstream ifss(path.c_str());
+    ifss >> single_slot_time;
+    ifss >> AR_whole_time;
+    ifss >> lead_time;
     
     
-    //define a vector to keep the AR servers of all the ASs
-    vector<ARserver> ARSERVER_vector;
-
-    //TODO: understand what exactly in does
-    ///////read in files that contain the delays between different ASes
-    string delay_file = "DelayFile";
+    //read delay file which contain the delays between different ARservers
+    string delay_file = "inputParameters/AS-Topology-Info/delay-Inter-AS";
     ifstream def(delay_file.c_str());
     int f_AS, t_AS;
     double delay;
-    def >> num_of_AS;
-
+    def >> num_of_ASs;
     //create the object that contains the delay parameters
-    DelayFile Delays(num_of_AS);
+    DelayFile Delays(num_of_ASs);
     while (def >> f_AS && def >> t_AS) {
         def >> delay;
         Delays.addDelay(f_AS, t_AS, delay);
     }
     
+    //define a vector to keep the AR servers of all the ASs
+    vector<ARserver> ARSERVER_vector;
     //store nodenum of all ASes in this array
-    int nodeNum[num_of_AS];
+    int nodeNum[num_of_ASs];
+    
+    //read the related Inter AS links in the next for loop from this file
+    path="inputParameters/AR-Topology-Info/Inter-AS-Topology";
+    
     
     //Create the required modules for each AS (ARServer which includes: Scheduler, ARBGP, IPCE and EPCE) for each AS
-    for (int as_num = 1; as_num <= num_of_AS; as_num++) {
+    for (int as_num = 1; as_num <= num_of_ASs; as_num++) {
 
+        ifstream interIfs(path.c_str());
+        
         //make an ARServer instance for each AS
         ARserver ARSERVER = ARserver(as_num, AR_whole_time, 60);
         int tmpasnum, num_vertices, node_u, node_v, edge_weight, edge_band, start_AS, end_AS;
@@ -88,7 +97,7 @@ int main(int argc, char* argv[]) {
               
         //define the AS name which is AS+number
         stringstream asname;
-        asname << "inputdata/AS" << as_num << "/AS" << as_num;
+        asname << "inputParameters/AS-Topology-Info/AS" << as_num << "/AS" << as_num;
         string asfile = asname.str();
         
         //read AS+Number file to find the number of vertices and the topology of AS network
@@ -104,7 +113,7 @@ int main(int argc, char* argv[]) {
         ARSERVER.IPCE_module.num_vertices = num_vertices;
         
         //read the intra network topology(u,v,b,w) from AS file and define the graph object in ARserver
-        while (inf >> node_u && node_u != 0) {
+        while (inf >> node_u) {
             if (node_u == -1) {
                 break;
             }
@@ -120,8 +129,10 @@ int main(int argc, char* argv[]) {
             
             ARSERVER.the_graph.intra_edges.push_back(tmp);
         }
+        
         //Read the Inter AS links
-        while (inf >> start_AS_vertex) {
+        while (interIfs >> start_AS_vertex) {
+            //read the information of one link
             int tmpindex = start_AS_vertex.find(":");
             start_AS = atoi(start_AS_vertex.substr(0, tmpindex).c_str());
             node_u = atoi(start_AS_vertex.substr((tmpindex + 1), start_AS_vertex.length() - tmpindex - 1).c_str());
@@ -131,17 +142,21 @@ int main(int argc, char* argv[]) {
             node_v = atoi(end_AS_vertex.substr((tmpindex + 1), end_AS_vertex.length() - tmpindex - 1).c_str());
             inf >> edge_weight;
             inf >> edge_band;
+            
+            if(start_AS==as_num or end_AS==as_num)
+            {
             Inter_AS_Links inter_link_entry;
             inter_link_entry.from_AS = start_AS;
             inter_link_entry.to_AS = end_AS;
             inter_link_entry.start_vertex = node_u;
             inter_link_entry.end_vertex = node_v;
-            Inter_AS_Links.weight=edge_weight;
+            inter_link_entry.weight= edge_weight;
             //if want to change the strategy of assigning bandwidth to a predefined mode:like all inter_domain links are 
             //64Gbps, please modify here
             inter_link_entry.band = edge_band;
             // inter_link_entry.theLink.constructTable(windowSize,windowExt);
             ARSERVER.the_graph.InterASLinks_table.push_back(inter_link_entry);
+            }
         }
         
         for (int i = 0; i < ARSERVER.the_graph.InterASLinks_table.size(); i++) {
@@ -174,11 +189,12 @@ int main(int argc, char* argv[]) {
 
     //create vector of call generators
     vector<CallGenerator> CallGenerator_vector;
-    for (int i = 1; i <= num_of_AS; i++) {
+    for (int i = 1; i <= num_of_ASs; i++) {
         CallGenerator callGen = CallGenerator(i);
         callGen.readNodeVector(nodeNum);
-        callGen.readCommonFile("common/common_parameter");
-        callGen.readprobMatrix("common/src_dst_prob_matrix");
+        //TODO: In future every AS should have its own call-gen parameters
+        callGen.readCommonFile("InputParameters/call-gen-input-params");
+        callGen.readprobMatrix("InputParameters/src_dst_prob_matrix");
         CallGenerator_vector.push_back(callGen);
     }
     
@@ -187,12 +203,12 @@ int main(int argc, char* argv[]) {
     //for each AS, execute the call generator to generate a request
     for (int i = 0; i < CallGenerator_vector.size(); i++) {
         Call_Node tmp;
-        //TODO: it should be changed. generateCall should receive the arrivale rate and produce arrival time within it
-        double arrival_time = expon(arrival_rate);
+        //TODO: it should be changed. generateCall should receive the arrival rate and produce arrival time within it
+
         //generate a call according to input parameters
-        CallGenerator_vector[i].generateCall(arrival_time,AR_whole_time,lead_time,single_slot_time,1);
+        CallGenerator_vector[i].generateCall(0,AR_whole_time,lead_time,single_slot_time,1);
         //save the produced request parameters in Queue
-        tmp.arrival_time = arrival_time;
+        tmp.arrival_time = CallGenerator_vector[i].arrival_time;
         tmp.from_AS = i + 1;
         tmp.from_node = CallGenerator_vector[i].source_node;
         tmp.to_AS = CallGenerator_vector[i].dest_AS;
@@ -350,9 +366,9 @@ int main(int argc, char* argv[]) {
                 }
                 ARSchedule_Q.push(Sche_Node);
                 Call_Node tmp;
-                double arrival_time = expon(arrival_rate) + CALL_Q.top().arrival_time;
-                CallGenerator_vector[CALL_Q.top().from_AS-1].generateCall(arrival_time,AR_whole_time,lead_time,single_slot_time,1);
-                tmp.arrival_time = arrival_time;
+                
+                CallGenerator_vector[CALL_Q.top().from_AS-1].generateCall(CALL_Q.top().arrival_time,AR_whole_time,lead_time,single_slot_time,1);
+                tmp.arrival_time = CallGenerator_vector[CALL_Q.top().from_AS-1].arrival_time;
                 tmp.from_AS = CALL_Q.top().from_AS;
                 tmp.from_node = CallGenerator_vector[CALL_Q.top().from_AS-1].source_node;
                 tmp.to_AS = CallGenerator_vector[CALL_Q.top().from_AS-1].dest_AS;
