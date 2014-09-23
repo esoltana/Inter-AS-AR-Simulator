@@ -1,4 +1,10 @@
-//number of ASes in the simulated topology
-9
-//simulation time
+//simulation per-run time
 10
+//number of runs
+...
+//topology path
+...
+//call-gen-input-params path
+...
+//AR-System-input-params path
+....
