@@ -8,7 +8,7 @@
 #ifndef ARBGP_H
 #define	ARBGP_H
 
-#include "GraphElements.h"
+#include "DataStructures.h"
 #include <string>
 #include <list>
 #include <queue>
@@ -26,7 +26,7 @@ public:
 	ARBGP(int asnum, int num_of_vertices);
 	void ARBGPinit();
 	void addNeighbor(int as_num, int border_router);
-	void sendUpdate(double send_time, priority_queue<ARBGP_Node, vector<ARBGP_Node>, MyComparatorARBGP>& ARBGP_Q, DelayFile DFile, int recvwindow, IPCE& IPCE_M);
+	void sendUpdate(double send_time, priority_queue<ARBGP_Node, vector<ARBGP_Node>, MyComparatorARBGP>& ARBGP_Q, DelayStruc DFile, int recvwindow, IPCE& IPCE_M);
 	void recvUpdate(int incomingAS, vector<NLRI> NLRI_vector);
 	void addMCNAccess(int as_num, int egress_ingress, int node1, int node2);
 	void getMCNList();

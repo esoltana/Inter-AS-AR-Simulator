@@ -8,7 +8,7 @@
 #ifndef IPCE_H
 #define	IPCE_H
 
-#include "GraphElements.h" 
+#include "DataStructures.h" 
 #include <map>
 
 using namespace std;
@@ -21,8 +21,8 @@ public:
     int num_vertices;
     IPCE();
     IPCE(int reservationWindowSize, int extension);
-    void readTopology(vector<Edge> intra_edges);
-    map<int, EdgeTable> intraASLinksAR;
+    void readTopology(vector<Intra_Link> intra_edges);
+    map<int, NodeTable> intraASLinksAR;
     bool findPath(int source_vertex, int dest_vertex, double capacity, int duration, vector<int> ARvec);
     bool findPathR(int source_vertex, int dest_vertex, double capacity_rate, int duration, int AR_time);
     bool findPathAndReserv(int source_vertex, int dest_vertex, double capacity, int duration, int AR_time);

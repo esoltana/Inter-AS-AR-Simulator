@@ -4,7 +4,7 @@
 // Revised by Elahe, University of Virginia, Sep 2014
 
 #include "CallGenerator.h"
-#include "randgen.h"
+#include "../randgen/randgen.h"
 #include <stdlib.h>
 #include <algorithm>
 #include <sstream>
@@ -17,16 +17,13 @@
 
 using namespace std;
 
-CallGenerator::CallGenerator(int as_num) {
+CallGenerator::CallGenerator(int AS_ID) {
     //the index of AS
-    asnum = as_num;
+    asID = AS_ID;
     //An array which used for producing random value to choos USST or EST in the randGen file
     USST_EST[0] = 1.0;
     USST_EST[1] = 2.0;
-    //the index of generated Dest AS
-    dest_AS = 1;
-    //the index of genereated Dest node
-    dest_node = 1;
+    
 }
 
 //read the number of nodes in all the ASs
@@ -54,10 +51,14 @@ Function Read every parameter in the file and assign values to corresponding var
 */
 void CallGenerator::readCommonFile(string path)
 {
-    //TODO: should read arival rate and construct arival time
-   
+
+    stringstream probmatrixPath;
+    
+    stringstream callGenPath;
+    callGenPath << path << "call-gen-input-params";
+    string cgfile = callGenPath.str();
     // define input stream
-    ifstream inf(path.c_str());
+    ifstream inf(cgfile.c_str());
     int round=0;
     //if the input stream opened correctly
     if (inf.is_open()) {
@@ -69,7 +70,7 @@ void CallGenerator::readCommonFile(string path)
             //check if it is a comment line, ignore it
             if (line[0] == '/' && line[1] == '/')
                 continue;
-            else if(round!=3){
+            else if(round==1 || round==2){
                 round++;
                 stringstream lineStream(line);
                 string indicator;
@@ -82,17 +83,40 @@ void CallGenerator::readCommonFile(string path)
                 } else if (indicator == "EST") {
                     lineStream >> ESTcap >> ESTduration_min >> ESTduration_max >> ESTn >> USST_EST_prob[1] >> zipf_alpha;
                 } else {
-                    cout << "Read Common file error!" << endl;
+                    cout <<  "Read Common file error!" << endl;
                 }
             }
-            else
+            else if(round==3)
             {
+                round++;
                 stringstream lineStream(line);
                 lineStream >> arrival_rate;
+            }else if (round==4)
+            {
+                stringstream lineStream(line);
+                lineStream >> prob_matrix_type;
+                switch (prob_matrix_type){
+                    case 1:
+                        probmatrixPath << path << "1-two_level_uniform_src_dst_prob_matrix";
+                        string probfile = probmatrixPath.str();
+                        readprobMatrix(probfile);
+                        break;
+                    case 2:
+                        probmatrixPath << path << "2-completelyUniform_src_dst_prob_matrix";
+                        string probfile = probmatrixPath.str();
+                        readprobMatrix(probfile);
+                        break;
+                    case 3:
+                        probmatrixPath << path << "3-IntraDomainCalls_src_dst_prob_matrix";
+                        string probfile = probmatrixPath.str();
+                        readprobMatrix(probfile);
+                        break;
+                }
+                
             }
         }
     } else {
-        cout << "Unable to open common file for AS" << asnum << "!";
+        cout << "Unable to open common file for AS" << asID << "!";
     }
     
     //close the input file
@@ -120,7 +144,7 @@ void CallGenerator::readprobMatrix(string path) {
             }
         }
     } else {
-        cout << "Unable to open common file for AS" << asnum << "!";
+        cout << "Unable to open common file for AS" << asID << "!";
     }
     inf.close();
 }
@@ -191,17 +215,17 @@ void CallGenerator::generateCall( double callQ_arrival_time, int windowsize, int
         ARvec.clear();
 
     //generate random number for source vertex
-    if (asnum > nodevec.size())
+    if (asID > nodevec.size())
         cout << "More AS than expected!" << endl;
     
     //get the number of nodes for this AS
-    int vertices_num_of_this_AS = nodevec[asnum - 1];
+    int vertices_num_of_this_AS = nodevec[asID - 1];
 
     //Generate random source node
     source_node = (rand() % vertices_num_of_this_AS) + 1;
 
     //generate an index for this node 
-    int thisindex = mapIndex(asnum, source_node);
+    int thisindex = mapIndex(asID, source_node);
     
     double probvec[total_node];
     //get the probability values of this specific source node (according to the row number)
@@ -227,15 +251,13 @@ void CallGenerator::generateCall( double callQ_arrival_time, int windowsize, int
     } else   //intra-domain
     {
         //for intra domain the Dest_AS is within this AS and equals asnum
-        dest_AS = asnum;
+        dest_AS = asID;
         //produce a random dest_node
         dest_node = (rand() % vertices_num_of_this_AS) + 1;
         //continue producing a new dest node if it equals with source node
         while (dest_node == source_node)
             dest_node = (rand() % vertices_num_of_this_AS) + 1;
     }
-    
-    //TODO: What does EST and USST exactly mean?
     
     //whether it's a USST call or EST call
     double indicator = rand_prob_vector(USST_EST, USST_EST_prob, 2);
@@ -271,27 +293,11 @@ void CallGenerator::generateCall( double callQ_arrival_time, int windowsize, int
         Duration = (zipf(zipf_alpha, (ESTduration_max - ESTduration_min)) + ESTduration_min)*60 / slot_length;
         //push the sequential AR options based on the number of ESTn
         for (int i = 0; i < ESTn; i++) {
-            ARvec.push_back(leadtime + i); //TODO: arrival time + leadtime + i
+            ARvec.push_back(arrival_time+leadtime + i); 
         }
     } else
         cout << "USST EST selection error!" << endl;
-    
-    
-    //save the produced call in a file named Call_for_AS+number
-    stringstream ss;
-    ss << arrival_time << " " << ARvec[0];
-    for (int i = 1; i < ARvec.size(); i++) {
-        ss << " " << ARvec[i];
-    }
-    ss << " " << Capacity << " " << Duration << " " << source_node << " " << dest_AS << " " << dest_node;
-    
-    stringstream sss;
-    sss << "Call_for_AS" << asnum;
-    ofstream fout;
-    fout.open(sss.str().c_str(), ios::app);
-    
-    fout.close();
-    
+
 }
 
 

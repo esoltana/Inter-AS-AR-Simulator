@@ -37,8 +37,8 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/ARBGP.o \
 	${OBJECTDIR}/ARserver.o \
-	${OBJECTDIR}/Graph.o \
 	${OBJECTDIR}/IPCE.o \
+	${OBJECTDIR}/Initializer.o \
 	${OBJECTDIR}/callgenerator/CallGenerator.o \
 	${OBJECTDIR}/intradijkstra.o \
 	${OBJECTDIR}/main.o \
@@ -80,15 +80,15 @@ ${OBJECTDIR}/ARserver.o: ARserver.cpp
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ARserver.o ARserver.cpp
 
-${OBJECTDIR}/Graph.o: Graph.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Graph.o Graph.cpp
-
 ${OBJECTDIR}/IPCE.o: IPCE.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/IPCE.o IPCE.cpp
+
+${OBJECTDIR}/Initializer.o: Initializer.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Initializer.o Initializer.cpp
 
 ${OBJECTDIR}/callgenerator/CallGenerator.o: callgenerator/CallGenerator.cpp 
 	${MKDIR} -p ${OBJECTDIR}/callgenerator

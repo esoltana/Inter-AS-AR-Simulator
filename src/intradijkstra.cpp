@@ -8,7 +8,7 @@
 #include "intradijkstra.h"
 #include<iostream>
 //#include "p.h"
-#include "GraphElements.h"
+#include "DataStructures.h"
 #define INFINITY 999
 
 /*
@@ -26,14 +26,14 @@
  * on certain edges(links) is less than capacity, then the value will also be set to INFINITY.
  * The matrix is used for computing a valid shortest path by using Dijkstra algorithm
  */
-void intradijkstra::read(int starting, int ending, int vnum, map<int, EdgeTable>& edgedata, int start, int end, double capacity) {
+void intradijkstra::read(int starting, int ending, int vnum, map<int, NodeTable>& edgedata, int start, int end, double capacity) {
     for (int i = 0; i < MAX; i++) {
         for (int j = 0; j < MAX; j++) {
             adjMatrix[i][j] = INFINITY;
         }
     }
     numOfVertices = vnum;
-    for (std::map<int, EdgeTable>::iterator iter = edgedata.begin(); iter != edgedata.end(); ++iter) {
+    for (std::map<int, NodeTable>::iterator iter = edgedata.begin(); iter != edgedata.end(); ++iter) {
         int from_node = iter->first / 1000;
         int to_node = iter->first % 1000;
         w = 10;
@@ -54,14 +54,14 @@ void intradijkstra::read(int starting, int ending, int vnum, map<int, EdgeTable>
  * This is another version of the above read()function. Here the input parameter capacity is replaced by capacity_rate. So the function, instead of using a fixed capacity value to determine the connectivity of edges, becomes
  * disconnecting those edges(links) whose available bandwidth is less than capacity_rate of their full capacity
  */
-void intradijkstra::readR(int starting, int ending, int vnum, map<int, EdgeTable>& edgedata, int start, int end, double capacity_rate) {
+void intradijkstra::readR(int starting, int ending, int vnum, map<int, NodeTable>& edgedata, int start, int end, double capacity_rate) {
     for (int i = 0; i < MAX; i++) {
         for (int j = 0; j < MAX; j++) {
             adjMatrix[i][j] = INFINITY;
         }
     }
     numOfVertices = vnum;
-    for (std::map<int, EdgeTable>::iterator iter = edgedata.begin(); iter != edgedata.end(); ++iter) {
+    for (std::map<int, NodeTable>::iterator iter = edgedata.begin(); iter != edgedata.end(); ++iter) {
         int from_node = iter->first / 1000;
         int to_node = iter->first % 1000;
         w = 10;

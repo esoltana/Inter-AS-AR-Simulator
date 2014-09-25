@@ -14,16 +14,19 @@ using namespace std;
 class ARserver
 {
 public:
-	ARserver(int as_num, int reservationWindowSize, int extension);
+	ARserver(int AS_num, int reservationWindowSize, int extension,string topology_path);
 	void constructUpdate();
-        void handleCall(vector<int> ARvec, int band, int duration, int sourceAS, int sourceNode, int destAS, int destNode);
-        GRAPH the_graph;
-	ARBGP AR_BGP;
-	IPCE IPCE_module;
-	//EPCE EPCE_module;
-	
+        void readIntraTopology(string topology_path);
+        void readInterLinks(string topology_path);
+        
+        TOPOLOGY topology;
+	int numOfNodes;
+        
+        ARBGP AR_BGP;
+        IPCE IPCE_module;
+        
 private:
-	int AS_num;
+        int AS_ID;
 	int ARWindowSize, ARExtension;
 };
 

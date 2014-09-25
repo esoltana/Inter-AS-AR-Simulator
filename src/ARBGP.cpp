@@ -76,7 +76,7 @@ void ARBGP::ARBGPinit() {
  * if the current AS is 1 and an egress inter-AS link to AS 3 from node 1:2 to 3:7, then we could use addMCNAccess(3,1,2,7)
  */ 
 void ARBGP::addMCNAccess(int as_num, int egress_ingress, int node1, int node2) {
-    MCNlist[as_num].as_num = as_num;
+    MCNlist[as_num].AS_ID = as_num;
     // egress
     if (egress_ingress == 1) {
         MCNlist[as_num].egress_links.push_back(make_pair(node1, node2));
@@ -170,7 +170,7 @@ void ARBGP::constructUpdate(int flag) {
     //RIB_out.clear();
 }
 
-void ARBGP::sendUpdate(double send_time, priority_queue<ARBGP_Node, vector<ARBGP_Node>, MyComparatorARBGP>& ARBGP_Q, DelayFile DFile, int recvwindow, IPCE& IPCE_M) {
+void ARBGP::sendUpdate(double send_time, priority_queue<ARBGP_Node, vector<ARBGP_Node>, MyComparatorARBGP>& ARBGP_Q, DelayStruc DFile, int recvwindow, IPCE& IPCE_M) {
 
     for (std::map<int, vector<NLRI> >::iterator iter = RIB_out.begin(); iter != RIB_out.end(); ++iter) {
         int MCN_id = iter->first;

@@ -1,11 +1,9 @@
-build/Debug/GNU-Linux-x86/ARserver.o: ARserver.cpp GraphElements.h IPCE.h \
- Graph.h readcall.h ARserver.h ARBGP.h
+build/Debug/GNU-Linux-x86/ARserver.o: ARserver.cpp DataStructures.h \
+ IPCE.h readcall.h ARserver.h ARBGP.h
 
-GraphElements.h:
+DataStructures.h:
 
 IPCE.h:
-
-Graph.h:
 
 readcall.h:
 

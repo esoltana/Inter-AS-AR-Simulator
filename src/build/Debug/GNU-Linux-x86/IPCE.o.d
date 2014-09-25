@@ -1,8 +1,8 @@
-build/Debug/GNU-Linux-x86/IPCE.o: IPCE.cpp IPCE.h GraphElements.h \
+build/Debug/GNU-Linux-x86/IPCE.o: IPCE.cpp IPCE.h DataStructures.h \
  intradijkstra.h
 
 IPCE.h:
 
-GraphElements.h:
+DataStructures.h:
 
 intradijkstra.h:

@@ -18,12 +18,12 @@ IPCE::IPCE(int reservationWindowSize, int extension) {
     extSize = extension;
 }
 
-void IPCE::readTopology(vector<Edge> intra_edges) {
+void IPCE::readTopology(vector<Intra_Link> intra_edges) {
     for (int i = 0; i < intra_edges.size(); i++) {
-        int node1 = intra_edges[i].u;
-        int node2 = intra_edges[i].v;
+        int node1 = intra_edges[i].start_node;
+        int node2 = intra_edges[i].end_node;
         int index = node1 * 1000 + node2;
-        EdgeTable tmp;
+        NodeTable tmp;
         tmp.getBand(intra_edges[i].bandwidth);
         tmp.constructTable(windowSize, extSize);
         intraASLinksAR[index] = tmp;

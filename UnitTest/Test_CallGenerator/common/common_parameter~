@@ -1,0 +1,4 @@
+//USST parameter: capacity(Gbps) duration(min) AR_options call_fraction
+USST 1 60 3 0.5
+//EST parameter: capacity(Gbps) duration_min(min) duration_max(min) AR_options call_fraction zipf_alpha
+EST 10 1 60 3 0.5 0.8

@@ -11,7 +11,7 @@
 //#include "p.h"
 #include<vector>
 #include<map>
-#include"GraphElements.h"
+#include"DataStructures.h"
 using namespace std;
 
 class intradijkstra{
@@ -35,8 +35,8 @@ class intradijkstra{
     * to noOfVertices - 1
  
     */
-        void read(int starting,int ending, int vnum, map<int,EdgeTable>& edgedata, int start, int end, double capacity);
-        void readR(int starting, int ending, int vnum, map<int, EdgeTable>& edgedata, int start, int end, double capacity_rate);
+        void read(int starting,int ending, int vnum, map<int,NodeTable>& edgedata, int start, int end, double capacity);
+        void readR(int starting, int ending, int vnum, map<int, NodeTable>& edgedata, int start, int end, double capacity_rate);
  
     /*
     * Function initialize initializes all the data members at the begining of
