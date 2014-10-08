@@ -28,6 +28,7 @@ public:
 private:
         int AS_ID;
 	int ARWindowSize, ARExtension;
+        //timeslots should be added.
 };
 
 

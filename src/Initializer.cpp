@@ -39,6 +39,7 @@ Initializer::Initializer() {
     
     readARsystemParams();
     
+    //TODO: readNumberOfASes())
     readASnumber();
     
     //A data structure to keep delay
@@ -82,11 +83,11 @@ Initializer::Initializer() {
     
     //TODO: call generator does not produce different calls for diff prob matrices.
     
-    //Priority Queue to keep ARBGP calls/msgs in order (Priority Queue needs comparateor function)
+    //Priority Queue to keep ARBGP msgs in order (Priority Queue needs comparateor function)
     priority_queue<ARBGP_Node, vector<ARBGP_Node>, MyComparatorARBGP> ARBGP_Q;
-    //Priority Queue to keep ARSchedule calls
+    //Priority Queue to keep Create reservation Request call from neighbor AR servers (EPCE) 
     priority_queue<ARSchedule_Node, vector<ARSchedule_Node>, MyComparatorARSchedule> ARSchedule_Q;
-    //Priority Queue to save Routing Request calls
+    //Priority Queue to save Create reservation Request from call generator within the domain of that AR server
     priority_queue<Call_Node, vector<Call_Node>, MyComparatorCALL> CALL_Q;
     
     
