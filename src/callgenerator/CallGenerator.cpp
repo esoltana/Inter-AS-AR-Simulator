@@ -27,11 +27,10 @@ CallGenerator::CallGenerator(int AS_ID) {
 }
 
 //read the number of nodes in all the ASs
-void CallGenerator::readNodeVector(int nodeNumArray[]) {
+void CallGenerator::readNodeVector(int nodeNumArray[], int arraySize) {
     total_node = 0;
     //find the size of array (which is the number of ASs)
-    int arraySize=sizeof(nodeNumArray)/sizeof(nodeNumArray[0]);
-    
+
     //push the node numbers in the vector
     for(int i=0; i<arraySize; i++)
         nodevec.push_back(nodeNumArray[i]);
@@ -43,10 +42,6 @@ void CallGenerator::readNodeVector(int nodeNumArray[]) {
 }
 
 /*
-Input (path): Full path of the file that has the common parameters
- For example, call the function below with this argument
-"C:\Users\mmv\Dropbox\AAAMEDPaperProject\common\common_parameter"
-
 Function Read every parameter in the file and assign values to corresponding variables of the CallGenerator object
 */
 void CallGenerator::readCommonFile(string path)
@@ -56,10 +51,11 @@ void CallGenerator::readCommonFile(string path)
     
     stringstream callGenPath;
     callGenPath << path << "call-gen-input-params";
+    
     string cgfile = callGenPath.str();
     // define input stream
     ifstream inf(cgfile.c_str());
-    int round=0;
+    int round=1;
     //if the input stream opened correctly
     if (inf.is_open()) {
         
@@ -76,10 +72,11 @@ void CallGenerator::readCommonFile(string path)
                 string indicator;
                 //read the first word of the line to find what is the type of call (USST or EST)
                 lineStream >> indicator;
-                
+               
                // read the next parameters
                 if (indicator == "USST") {
                     lineStream >> USSTcap >> USSTduration >> USSTn >> USST_EST_prob[0];
+                   
                 } else if (indicator == "EST") {
                     lineStream >> ESTcap >> ESTduration_min >> ESTduration_max >> ESTn >> USST_EST_prob[1] >> zipf_alpha;
                 } else {
@@ -95,22 +92,26 @@ void CallGenerator::readCommonFile(string path)
             {
                 stringstream lineStream(line);
                 lineStream >> prob_matrix_type;
+                
                 switch (prob_matrix_type){
-                    case 1:
+                    case 1:{
                         probmatrixPath << path << "1-two_level_uniform_src_dst_prob_matrix";
                         string probfile = probmatrixPath.str();
                         readprobMatrix(probfile);
                         break;
-                    case 2:
+                    }
+                    case 2:{
                         probmatrixPath << path << "2-completelyUniform_src_dst_prob_matrix";
                         string probfile = probmatrixPath.str();
                         readprobMatrix(probfile);
                         break;
-                    case 3:
+                    }
+                    case 3:{
                         probmatrixPath << path << "3-IntraDomainCalls_src_dst_prob_matrix";
                         string probfile = probmatrixPath.str();
                         readprobMatrix(probfile);
                         break;
+                    }
                 }
                 
             }
@@ -213,7 +214,7 @@ void CallGenerator::generateCall( double callQ_arrival_time, int windowsize, int
             
     if (ARvec.size() != 0)
         ARvec.clear();
-
+    
     //generate random number for source vertex
     if (asID > nodevec.size())
         cout << "More AS than expected!" << endl;
@@ -261,7 +262,6 @@ void CallGenerator::generateCall( double callQ_arrival_time, int windowsize, int
     
     //whether it's a USST call or EST call
     double indicator = rand_prob_vector(USST_EST, USST_EST_prob, 2);
-    
     //USST
     if (indicator == 1.0) {
         //this values were determined based on common file 

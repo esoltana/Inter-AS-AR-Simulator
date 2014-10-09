@@ -19,13 +19,14 @@ class intradijkstra{
         int adjMatrix[MAX][MAX];
         int predecessor[MAX],distance[MAX];
         bool mark[MAX]; //keep track of visited node
-        int source,dest;
-        int numOfVertices,edgecount,u,v,w;
+        
+        int numOfNodes,linkcount,u,v,w;
         bool deletable[MAX];
         int ecount, theallcount, i;
     public:
         vector <int> pathvector;
         int flag;
+        int source,dest;
        // void recreate(int start,map<int,EdgeTable>& edgedata, int allcount,int end, int capacity);
     /*
     * Function read() reads No of vertices, Adjacency Matrix and source

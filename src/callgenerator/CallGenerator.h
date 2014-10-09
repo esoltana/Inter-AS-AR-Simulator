@@ -3,10 +3,10 @@
 
 using namespace std;
 
-class CallGenerator {
+class CallGenerator{
 public:
     CallGenerator(int AS_ID);
-    void readNodeVector(int nodeNumArray[]);
+    void readNodeVector(int nodeNumArray[],  int arraySize);
     void mapNode(int index);
     int mapIndex(int AS_num, int vertex_num);
     void generateCall(double arr, int windowsize, int leadtime,      int slot_length , int flag);

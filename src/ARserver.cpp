@@ -16,32 +16,44 @@
 using namespace std;
 
 
-ARserver::ARserver(int AS_num, int reservationWindowSize, int extension, string topology_path)
+ARserver::ARserver(int AS_num, int AR_TimeWindow_size, int lead_time, int single_TimeSlot_size, string topology_path)
 {
-    ARWindowSize = reservationWindowSize;
-    ARExtension = extension;
+    ARWindowSize = AR_TimeWindow_size;
+    ARExtension = lead_time;
+    timeSlotSize=single_TimeSlot_size;
     AS_ID=AS_num;
 
     readIntraTopology(topology_path);
     readInterLinks(topology_path);
+    
+    //TODO: should modify them if needed. is not complete yet
+    AR_BGP_module= ARBGP();
+    initializeARBGP();
+    
+    //creat an instance of IPCE module
+    IPCE_module=IPCE(ARWindowSize,ARExtension);
 
+    
+    //IPCE module reads intra network topology and save it in a new format to use in find path function
+    IPCE_module.readTopology(topology.Intra_Links_table);
+
+}
+
+void ARserver::initializeARBGP()
+{
     //TODO: didn't understand why we need to have toplogy in this format again
     for (int i = 0; i < topology.InterASLinks_table.size(); i++) {
         //outgoing links
         if (topology.InterASLinks_table[i].start_AS == AS_ID) {
-            AR_BGP.addMCNAccess(topology.InterASLinks_table[i].end_AS, 1, topology.InterASLinks_table[i].start_node, topology.InterASLinks_table[i].end_node);
+            AR_BGP_module.addMCNAccess(topology.InterASLinks_table[i].end_AS, 1, topology.InterASLinks_table[i].start_node, topology.InterASLinks_table[i].end_node);
         } else {
-            AR_BGP.addMCNAccess(topology.InterASLinks_table[i].start_AS, 2, topology.InterASLinks_table[i].start_node, topology.InterASLinks_table[i].end_node);
+            AR_BGP_module.addMCNAccess(topology.InterASLinks_table[i].start_AS, 2, topology.InterASLinks_table[i].start_node, topology.InterASLinks_table[i].end_node);
         }
     }
     //TODO: Should completely study it in ARBGP module - why we need it
-    AR_BGP.getMCNList();
-
-    //TODO: Better to use graph class instead of creating a new topology instance in IPCE
-    //All the IPCE module ASs read intra network topology
-    IPCE_module.readTopology(topology.Intra_Links_table);
-
+    AR_BGP_module.getMCNList();
 }
+
 
 void ARserver::readIntraTopology(string topology_path)
 {
@@ -176,4 +188,48 @@ void ARserver::readInterLinks(string topology_path)
         }
     }
 }
+
+void ARserver::actionARBGPreceive(int from_AS,vector<NLRI> NLRI_vector)
+{
+    //TODO: Study details about what this function does.
+                AR_BGP_module.recvUpdate(from_AS, NLRI_vector);
+}
+
+ARSchedule_Node ARserver::actionSchedulerReceive(ARSchedule_Node ARSchNode)
+{
+    ARSchedule_Node tmp;
+    cout << "  schedule in AR server from to: " << ARSchNode.from_AS << " " << ARSchNode.to_AS;
+    
+    if(ARSchNode.from_AS == ARSchNode.to_AS)
+    {
+        //intra call
+        //can be reserved
+        cout<< " Intra call " ;
+        if(IPCE_module.findPathAndReserv(ARSchNode.from_node,ARSchNode.to_node,ARSchNode.capacity,ARSchNode.duration,ARSchNode.AR_vector[ARSchNode.AR_time]))
+        {
+            cout<<"One reservation made!"<<endl;
+        }
+        else
+        {
+            cout << "no reservation" ;
+            //EPCE should be called
+            /*
+            if(ARSchNode.AR_time < ARSchNode.AR_vector.size()-1)
+            {
+                tmp=new ARSchedule_Node(ARSchNode.from_AS,ARSchNode.from_node,ARSchNode.to_AS,ARSchNode.to_node,ARSchNode.send_time,ARSchNode.total_delay,ARSchNode.capacity,ARSchNode.duration,ARSchNode.AR_time+1,ARSchNode.AS_path,ARSchNode.AR_vector);
+                return tmp;
+            }
+             */
+
+
+        }
+    }
+    else
+    {
+        //inter call
+        cout<<"inter AS calls not tested!"<<endl;
+    }
+    return tmp;
+}
+
 

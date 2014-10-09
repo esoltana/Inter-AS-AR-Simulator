@@ -31,7 +31,7 @@ public:
         delete it;
     }
 };
-//TODO: I don't why need this class, check if it's used
+//TODO: I don't know why need this class, check if it's used
 class BaseVertex {
     int m_nID;
     double m_dWeight;
@@ -65,10 +65,10 @@ public:
     std::vector<double> reservationTable;
     double bandwidth;
 
-    void getBand(double band) {
+    void setBand(double band) { 
         bandwidth = band;
     }
-    void constructTable(int tableSize, int extension) {
+    void constructResTable(int tableSize, int extension) {
         int totalSize = tableSize + extension;
         for (int i = 1; i <= totalSize; i++)
             reservationTable.push_back(bandwidth);
@@ -81,7 +81,7 @@ public:
         reservationTable.push_back(bandwidth);
         return theReturnBand;
     }
-    void printTable()  {
+    void printResTable()  {
         for(int i = 0; i < reservationTable.size(); i++)
         {
             cout<<reservationTable[i]<<" ";
@@ -252,7 +252,6 @@ public:
 };
 
 ////////////implement the ARBGP queue
-
 struct ARBGP_Node {
     int from_AS;
     int to_AS ;
@@ -360,14 +359,9 @@ private:
     
 
 };
-
-
-
-
 ///////////---------------------------
 
 ////////////implement the ARScheduling queue
-
 struct ARSchedule_Node {
     int from_AS;
     int to_AS;
@@ -477,7 +471,6 @@ private:
 /////////////////////////
 
 //the data structure that stores the delays between ASes
-
 class DelayStruc {
 public:
 
@@ -509,8 +502,6 @@ private:
 
 };
 //
-
-
 //////call data structure
 struct Call_Node{
     double arrival_time;

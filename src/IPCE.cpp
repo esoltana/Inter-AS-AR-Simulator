@@ -1,7 +1,7 @@
 /* 
  * File:   IPCE.cpp
  * Author: leo
- * 
+ * revised: Elahe
  * Created on June 27, 2014, 12:22 AM
  */
 
@@ -18,16 +18,20 @@ IPCE::IPCE(int reservationWindowSize, int extension) {
     extSize = extension;
 }
 
-void IPCE::readTopology(vector<Intra_Link> intra_edges) {
-    for (int i = 0; i < intra_edges.size(); i++) {
-        int node1 = intra_edges[i].start_node;
-        int node2 = intra_edges[i].end_node;
+//TODO: Ask Zhe why he produces a new data structure instead of adding a reservation window to previous intra link struct
+//TODO: why not considering weight of the link?????
+
+void IPCE::readTopology(vector<Intra_Link> intra_links) {
+    //for each entry of intra_links table
+    for (int i = 0; i < intra_links.size(); i++) {
+        int node1 = intra_links[i].start_node;
+        int node2 = intra_links[i].end_node;
+        //create an index based on start and end nodes
         int index = node1 * 1000 + node2;
         NodeTable tmp;
-        tmp.getBand(intra_edges[i].bandwidth);
-        tmp.constructTable(windowSize, extSize);
+        tmp.setBand(intra_links[i].bandwidth);
+        tmp.constructResTable(windowSize, extSize);
         intraASLinksAR[index] = tmp;
-
     }
 }
 
@@ -36,7 +40,7 @@ bool IPCE::findPath(int source_vertex, int dest_vertex, double capacity, int dur
     intradijkstra G;
     for (int i = 0; i < ARvec.size(); i++) {
         // should have a conversion between current time and rvwindow time
-        G.read(source_vertex, dest_vertex, num_vertices, intraASLinksAR, ARvec[i], ARvec[i] + duration, capacity);
+        G.read(source_vertex, dest_vertex, num_nodes, intraASLinksAR, ARvec[i], ARvec[i] + duration, capacity);
         //G.recreate(ARvec[i], intraASLinksAR, intraASLinksAR.size(), ARvec[i] + duration, capacity);
         G.calculateDistance();
         //no path between these two nodes
@@ -58,7 +62,7 @@ bool IPCE::findPathR(int source_vertex, int dest_vertex, double capacity_rate, i
     if (source_vertex == 0 || dest_vertex == 0)
         return true;
     // should have a conversion between current time and rvwindow time
-    G.readR(source_vertex, dest_vertex, num_vertices, intraASLinksAR, AR_time, AR_time + duration, capacity_rate);
+    G.readR(source_vertex, dest_vertex, num_nodes, intraASLinksAR, AR_time, AR_time + duration, capacity_rate);
     //G.recreate(ARvec[i], intraASLinksAR, intraASLinksAR.size(), ARvec[i] + duration, capacity);
     G.calculateDistance();
     //no path between these two nodes
@@ -68,24 +72,24 @@ bool IPCE::findPathR(int source_vertex, int dest_vertex, double capacity_rate, i
 
 }
 
-bool IPCE::findPathAndReserv(int source_vertex, int dest_vertex, double capacity, int duration, int AR_time) {
-
+bool IPCE::findPathAndReserv(int source_node, int dest_node, double capacity, int duration, int AR_time) {
+    cout << " find path in IPCE ";
     intradijkstra G;
-        // should have a conversion between current time and rvwindow time
-        G.read(source_vertex, dest_vertex, num_vertices, intraASLinksAR, AR_time, AR_time + duration, capacity);
-        //G.recreate(ARvec[i], intraASLinksAR, intraASLinksAR.size(), ARvec[i] + duration, capacity);
+        // should have a conversion between current time and rwindow time
+        G.read(source_node, dest_node, num_nodes, intraASLinksAR, AR_time, AR_time + duration, capacity);
+
         G.calculateDistance();
         G.output();
-        //cout<<"print flag:"<<G.flag<<endl;
+        cout<<"print flag:"<<G.flag<<endl;
         //no path between these two nodes
         if (G.flag == 0)
         {
-            //cout<<"should be a false!"<<endl;
+            cout<<"should be a false!"<<endl;
             return false;
         }
         else {
             
-            //cout<<"do the reservation when flag is "<< G.flag <<endl;
+            cout<<"do the reservation when flag is "<< G.flag <<endl;
             reserveCall(G.pathvector, AR_time, AR_time + duration, capacity);
             return true;
         }

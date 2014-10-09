@@ -18,10 +18,10 @@ private:
 
 public:
     int windowSize, extSize;
-    int num_vertices;
+    int num_nodes;
     IPCE();
     IPCE(int reservationWindowSize, int extension);
-    void readTopology(vector<Intra_Link> intra_edges);
+    void readTopology(vector<Intra_Link> intra_links);
     map<int, NodeTable> intraASLinksAR;
     bool findPath(int source_vertex, int dest_vertex, double capacity, int duration, vector<int> ARvec);
     bool findPathR(int source_vertex, int dest_vertex, double capacity_rate, int duration, int AR_time);

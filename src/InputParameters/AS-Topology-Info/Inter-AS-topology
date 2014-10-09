@@ -2,6 +2,7 @@
 9
 //Inter-AS links
 //Start-AS:start-Node end-AS:end-node weight BandwidthRate
+//In future add the delay file to this folder and change the file name to Inter-AS-Info
 1:3 3:8 5 64
 1:1 4:7 5 64
 1:2 3:7 1 64
@@ -55,7 +56,4 @@
 9:5 6:1 1 64
 9:3 8:1 1 64
 9:4 8:2 1 64
-
-
-
 

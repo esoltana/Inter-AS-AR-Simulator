@@ -6,6 +6,8 @@
  */
 #include <string>
 #include "DataStructures.h"
+#include "ARserver.h"
+#include "callgenerator/CallGenerator.h"
 using namespace std;
 
 class Initializer {
@@ -13,8 +15,10 @@ public:
     Initializer();
     void readSimulationParam(string path);
     void readARsystemParams();
-    void readASnumber();
+    void readNumberOfASes();
     void readDelayFile(DelayStruc Delays);
+    void simulateMsgPassing(DelayStruc Delays,int nodeNum[]);
+    void generateFirstRoundCalls();
     
     int num_of_ASes;
     
@@ -38,7 +42,20 @@ public:
     int AR_TimeWindow_size;
      //Lead time in timeslots
     int lead_time;
-    
+
+/////////////Simulation related Variables    
+     //define a vector to keep the AR servers of all the ASs
+    vector<ARserver> ARSERVER_vector;
+    //store number of ASes of all ASes in this array
+   
+    vector<CallGenerator> CallGenerator_vector;
+    //Priority Queue to keep ARBGP update received msgs in order (Priority Queue needs comparateor function)
+    priority_queue<ARBGP_Node, vector<ARBGP_Node>, MyComparatorARBGP> ARBGP_Q;
+    //Priority Queue to keep Create reservation Request call from neighbor AR servers (EPCE) 
+    priority_queue<ARSchedule_Node, vector<ARSchedule_Node>, MyComparatorARSchedule> ARSchedule_Q;
+    //Priority Queue to save Create reservation Request from call generator within the domain of that AR server
+    priority_queue<Call_Node, vector<Call_Node>, MyComparatorCALL> CALL_Q;
+////////////////////////////    
     
 private:
 
