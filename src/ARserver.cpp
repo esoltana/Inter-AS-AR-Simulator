@@ -31,9 +31,7 @@ ARserver::ARserver(int AS_num, int AR_TimeWindow_size, int lead_time, int single
     initializeARBGP();
     
     //creat an instance of IPCE module
-    IPCE_module=IPCE(ARWindowSize,ARExtension);
-
-    
+    IPCE_module=IPCE(ARWindowSize,ARExtension,numOfNodes);
     //IPCE module reads intra network topology and save it in a new format to use in find path function
     IPCE_module.readTopology(topology.Intra_Links_table);
 
@@ -97,25 +95,21 @@ void ARserver::readIntraTopology(string topology_path)
         }else if (index==3)
         {
          //read the intra network topology(u,v,b,w) from AS file and define the graph object in ARserver
-            in >> node_u;
-            in >> node_v;
-            in >> link_weight;
-            in >> link_band;
+            iss >> node_u;
+            iss >> node_v;
+            iss >> link_weight;
+            iss >> link_band;
 
             Intra_Link tmp;
             tmp.start_node = node_u;
             tmp.end_node = node_v;
             tmp.bandwidth = link_band;
             tmp.weight=link_weight;
-
             topology.Intra_Links_table.push_back(tmp);
          
         }
     }
 
-    //TODO: Can have num_vertices in ARSEERVEr not to define it twice. 
-    //ARSERVER.AR_BGP.num_vertices = num_vertices;
-    //ARSERVER.IPCE_module.num_vertices = num_vertices;
 }
 
 void ARserver::readInterLinks(string topology_path)
@@ -195,24 +189,26 @@ void ARserver::actionARBGPreceive(int from_AS,vector<NLRI> NLRI_vector)
                 AR_BGP_module.recvUpdate(from_AS, NLRI_vector);
 }
 
+
 ARSchedule_Node ARserver::actionSchedulerReceive(ARSchedule_Node ARSchNode)
 {
     ARSchedule_Node tmp;
-    cout << "  schedule in AR server from to: " << ARSchNode.from_AS << " " << ARSchNode.to_AS;
+    cout << "  schedule in AR server from: " << ARSchNode.from_AS << " to: " << ARSchNode.to_AS << endl;
     
     if(ARSchNode.from_AS == ARSchNode.to_AS)
     {
         //intra call
         //can be reserved
-        cout<< " Intra call " ;
-        if(IPCE_module.findPathAndReserv(ARSchNode.from_node,ARSchNode.to_node,ARSchNode.capacity,ARSchNode.duration,ARSchNode.AR_vector[ARSchNode.AR_time]))
+        //TODO: Wrong AR_time Does not get any value, there should be a loop between different AR options. 
+        //cout << "AR_time: " <<ARSchNode.AR_time;
+        if(IPCE_module.findPathAndReserv(ARSchNode.from_node,ARSchNode.to_node,ARSchNode.capacity,ARSchNode.duration,ARSchNode.AR_vector))
         {
-            cout<<"One reservation made!"<<endl;
+            cout<<"One reservation made!"<<endl<<endl;
         }
         else
         {
-            cout << "no reservation" ;
-            //EPCE should be called
+            cout << "no reservation" <<endl << endl ;
+            
             /*
             if(ARSchNode.AR_time < ARSchNode.AR_vector.size()-1)
             {
@@ -227,6 +223,7 @@ ARSchedule_Node ARserver::actionSchedulerReceive(ARSchedule_Node ARSchNode)
     else
     {
         //inter call
+        //EPCE should be called
         cout<<"inter AS calls not tested!"<<endl;
     }
     return tmp;

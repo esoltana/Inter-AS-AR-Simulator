@@ -278,6 +278,7 @@ void CallGenerator::generateCall( double callQ_arrival_time, int windowsize, int
                 } while (find(ARvec.begin(), ARvec.end(), ARoption) != ARvec.end());
             } else
                 //if ARvec is empty, produce a random ARoption (doesn't need to check the last element of ARvec)
+                //TODO: check if the value is correct
                 ARoption = rand() % (24 * 60) + 1;
             //push the produced AR option into ARvec
             ARvec.push_back(ARoption);
@@ -293,6 +294,7 @@ void CallGenerator::generateCall( double callQ_arrival_time, int windowsize, int
         Duration = (zipf(zipf_alpha, (ESTduration_max - ESTduration_min)) + ESTduration_min)*60 / slot_length;
         //push the sequential AR options based on the number of ESTn
         for (int i = 0; i < ESTn; i++) {
+            //TODO: check if the value is correct 
             ARvec.push_back(arrival_time+leadtime + i); 
         }
     } else

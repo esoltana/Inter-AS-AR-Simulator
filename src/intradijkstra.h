@@ -16,6 +16,8 @@ using namespace std;
 
 class intradijkstra{
     private:
+        //TODO: the size of matrices should be modified 
+        //TODO: check if all of these variables are used and rename some of them
         int adjMatrix[MAX][MAX];
         int predecessor[MAX],distance[MAX];
         bool mark[MAX]; //keep track of visited node
@@ -66,7 +68,7 @@ class intradijkstra{
     */
  
         void output();
-        void printPath(int);
+        void constructPath(int);
 };
 
 #endif	/* INTRADIJKSTRA_H */

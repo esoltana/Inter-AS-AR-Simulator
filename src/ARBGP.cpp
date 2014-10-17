@@ -190,7 +190,7 @@ void ARBGP::sendUpdate(double send_time, priority_queue<ARBGP_Node, vector<ARBGP
                 //find = true: find opening, find = false:find close
                 bool find = true;
                 while (curr < recvwindow) {
-                    bool flag = IPCE_M.findPathR(tmpB.BR_of_this_AS, MCNlist[MCN_id].egress_links[i].first, threshold_capacity, curr, curr + 1);
+                    bool flag = IPCE_M.findsinglePathR(tmpB.BR_of_this_AS, MCNlist[MCN_id].egress_links[i].first, threshold_capacity, curr, curr + 1);
                     if(!flag)
                     cout<<"the flag:"<<flag<<" the find:"<<find<< " curr:"<<curr<<endl;
                     if (find && !flag) {
@@ -232,7 +232,7 @@ void ARBGP::sendUpdate(double send_time, priority_queue<ARBGP_Node, vector<ARBGP
                     }
                 }
                  */
-                if (IPCE_M.findPathR(tmpB.BR_of_this_AS, MCNlist[MCN_id].egress_links[i].first, threshold_capacity, curr, curr + 1)) {
+                if (IPCE_M.findsinglePathR(tmpB.BR_of_this_AS, MCNlist[MCN_id].egress_links[i].first, threshold_capacity, curr, curr + 1)) {
                     close = recvwindow;
                     NLRI tmp_NLRI(tmpB);
                     tmp_NLRI.BR_of_this_AS = MCNlist[MCN_id].egress_links[i].second;

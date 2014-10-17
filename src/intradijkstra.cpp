@@ -16,6 +16,17 @@
  */
 
 
+/*
+ * initialize several vectors used by the algorithm
+ */
+void intradijkstra::initialize() {
+    for (int i = 0; i < numOfNodes; i++) {
+        mark[i] = false;
+        predecessor[i] = -1;
+        distance[i] = INFINITY;
+    }
+    distance[source] = 0;
+}
 
 /*
  * Input: starting: the starting node number; ending: the ending node number; edgedata: the reference of a map of EdgeTable, please see DataStructures.h to understand the data structure of edgedata object, 
@@ -27,6 +38,7 @@
  * The matrix is used for computing a valid shortest path by using Dijkstra algorithm
  */
 void intradijkstra::read(int starting, int ending, int numNode, map<int, NodeTable>& intraLinks, int startTime, int endTime, double capacity) {
+    //TODO: the size of the matrix should be equal to number of nodes, not a fix value
     for (int i = 0; i < MAX; i++) {
         for (int j = 0; j < MAX; j++) {
             adjMatrix[i][j] = INFINITY;
@@ -36,7 +48,9 @@ void intradijkstra::read(int starting, int ending, int numNode, map<int, NodeTab
     for (std::map<int, NodeTable>::iterator iter = intraLinks.begin(); iter != intraLinks.end(); ++iter) {
         int from_node = iter->first / 1000;
         int to_node = iter->first % 1000;
-        //TODO: Why the difualt value of Bandwidth is 10 
+        //TODO: Why the difault value of Bandwidth is 10, it can be assigned according to input file
+        //TODO: weight is not considered
+
         w = 10;
         for (int k = startTime; k <= endTime; k++) {
             if (iter->second.reservationTable[k] < capacity) {
@@ -45,9 +59,11 @@ void intradijkstra::read(int starting, int ending, int numNode, map<int, NodeTab
             }
         }
         adjMatrix[from_node-1][to_node-1] = w;
+        
     }
     source = starting-1;
     dest = ending-1;
+   
 }
 
 
@@ -61,7 +77,7 @@ void intradijkstra::readR(int starting, int ending, int vnum, map<int, NodeTable
             adjMatrix[i][j] = INFINITY;
         }
     }
-    numOfVertices = vnum;
+    numOfNodes = vnum;
     for (std::map<int, NodeTable>::iterator iter = edgedata.begin(); iter != edgedata.end(); ++iter) {
         int from_node = iter->first / 1000;
         int to_node = iter->first % 1000;
@@ -83,18 +99,6 @@ void intradijkstra::readR(int starting, int ending, int vnum, map<int, NodeTable
 
 
 /*
- * initialize several vectors used by the algorithm
- */
-void intradijkstra::initialize() {
-    for (int i = 0; i < numOfNodes; i++) {
-        mark[i] = false;
-        predecessor[i] = -1;
-        distance[i] = INFINITY;
-    }
-    distance[source] = 0;
-}
-
-/*
  * called by other inner functions
  */
 
@@ -107,6 +111,7 @@ int intradijkstra::getClosestUnmarkedNode() {
             closestUnmarkedNode = i;
         }
     }
+    //cout << "source: " << source << " closest: " << closestUnmarkedNode << " minDistance: "<< minDistance << endl;
     return closestUnmarkedNode;
 }
 
@@ -114,13 +119,7 @@ int intradijkstra::getClosestUnmarkedNode() {
  * compute the shortest path
  */
 void intradijkstra::calculateDistance() {
-    //cout<<"do cal!"<<endl;
-  //      cout<<"pred:";
-        
-  //  for(int i = 0; i < MAX; i++)
-  //  {
-  //      cout<< predecessor[i]<<" ";
-  //  }
+
     initialize();
     int minDistance = INFINITY;
     int closestUnmarkedNode;
@@ -129,7 +128,9 @@ void intradijkstra::calculateDistance() {
         closestUnmarkedNode = getClosestUnmarkedNode();
         mark[closestUnmarkedNode] = true;
         for (int i = 0; i < numOfNodes ; i++) {
+            
             if ((!mark[i]) && (adjMatrix[closestUnmarkedNode][i] > 0)) {
+               
                 if (distance[i] > distance[closestUnmarkedNode] + adjMatrix[closestUnmarkedNode][i]) {
                     distance[i] = distance[closestUnmarkedNode] + adjMatrix[closestUnmarkedNode][i];
                     predecessor[i] = closestUnmarkedNode;
@@ -138,21 +139,19 @@ void intradijkstra::calculateDistance() {
         }
         count++;
     }
-  //  cout<<"pred:";
-  //  for(int i = 0; i < MAX; i++)
-  //  {
-   //     cout<< predecessor[i]<<" ";
-   // }
-         
+    
+     pathvector.clear();
+    constructPath(dest);
+   
 }
 
 /*
  * called by output()
  */
-void intradijkstra::printPath(int node) {
-    cout<<node<<"..";
+void intradijkstra::constructPath(int node) {
+    
     if (node == source) {
-         cout<<node<<"..";
+        
         pathvector.push_back(node);
         flag = 1;
     } else if (predecessor[node] == -1) {
@@ -160,8 +159,8 @@ void intradijkstra::printPath(int node) {
         flag = 0;
     } else {
 
-        printPath(predecessor[node]);
-        cout<<node<<"..";
+        constructPath(predecessor[node]);
+        
         pathvector.push_back(node);
     }
 }
@@ -170,14 +169,16 @@ void intradijkstra::printPath(int node) {
  * output the shortest path. If no valid path is found, then print 'no path' information(by printPaht() function)
  */
 void intradijkstra::output() {
-    pathvector.clear();
+   
 
-    printPath(dest);
+   
+
     for (int j = 0; j < pathvector.size(); j++)
         pathvector[j]+=1;
+    cout << "path:";
     for (int j = 0; j < pathvector.size(); j++)
         cout << pathvector[j] << "--";
-    cout << "->" << distance[dest] << endl;
+    cout << "->distance:" << distance[dest] << endl;
 }
 
 

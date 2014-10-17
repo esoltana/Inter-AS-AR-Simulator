@@ -130,8 +130,7 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[])
         else
             //else the smallest in BGP update message
             case_flag = 4;
-        
-        cout << "case flag: " << case_flag << endl;
+
         switch (case_flag) {
             case 1:
                 //do ARBGP update
@@ -170,7 +169,7 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[])
                 for (int i = 0; i < CALL_Q.top().AR_vec.size(); i++) {
                     cout << CALL_Q.top().AR_vec[i] << " ";
                 }
-                cout << " fromAS:" << CALL_Q.top().from_AS << "  fromNode:" << CALL_Q.top().from_node << "  ToAS:" << CALL_Q.top().to_AS << "  toNode:" << CALL_Q.top().to_node << endl;
+                cout << " fromAS:" << CALL_Q.top().from_AS << "  fromNode:" << CALL_Q.top().from_node << "  ToAS:" << CALL_Q.top().to_AS << "  toNode:" << CALL_Q.top().to_node << endl <<endl;
                 //push this call into the ARSchedule_Q
                 ARSchedule_Node Sche_Node;
                 Sche_Node.from_AS = CALL_Q.top().from_AS;
@@ -225,7 +224,9 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[])
 void Initializer::generateFirstRoundCalls()
 {
     //for each AS, execute the call generator to generate a request
+    //TODO: change it to produce just one msg for testing
     for (int i = 0; i < CallGenerator_vector.size(); i++) {
+    //for(int i=0; i<1;i++){
         Call_Node tmp;
        
         //generate a call according to input parameters
@@ -364,7 +365,7 @@ void Initializer::readNumberOfASes()
     iss >> num_of_ASes;
    
     //Test if the number of ASs read correctly
-    cout << "number of ASes in this topology: " << num_of_ASes << endl;
+    //cout << "number of ASes in this topology: " << num_of_ASes << endl;
 }
 
 void Initializer::readDelayFile(DelayStruc Delays)
