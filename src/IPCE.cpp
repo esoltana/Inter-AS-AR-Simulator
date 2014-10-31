@@ -9,7 +9,8 @@
 #include <vector>
 #include <string>
 #include "intradijkstra.h"
-
+//28 performance evaluations  MM1 Queuy system
+// available bandwidth in timeslot (t k , t k + τ ) on link l ∈ Λ where t k ≤ t ≤ (t k + τ ), 1 ≤ k ≤ K
 IPCE::IPCE(){}
 
 IPCE::IPCE(int reservationWindowSize, int extension, int numNode) {
@@ -35,6 +36,7 @@ void IPCE::readTopology(vector<Intra_Link> intra_links) {
     }
 }
 
+//ask Shawn to show Steve's code
 bool IPCE::findPathAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec) {
     cout << "find path in IPCE " << endl;
     intradijkstra G;
@@ -60,6 +62,11 @@ bool IPCE::findPathAndReserv(int source_node, int dest_node, double capacity, in
 
 }
 
+//TODO: use the notations from the paper as much as possible
+//TODO: available bandwidth table instead of reservation table
+//TODO: Capacity for the transmission rate of a link bps
+//TODO: "Rate" for rate requested for the call bps
+//TODO: delete rate functions
 bool IPCE::findsinglePathR(int source_vertex, int dest_vertex, double capacity_rate, int duration, int AR_time) {
 
     intradijkstra G;
