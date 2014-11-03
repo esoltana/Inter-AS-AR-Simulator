@@ -59,32 +59,32 @@ public:
     }
 };
 
-class NodeTable {
-   
+class linkAvailableBandwithTable {
 public:
-    std::vector<double> reservationTable;
+    std::vector<double> availableBandwidthTable;
     double bandwidth;
 
     void setBand(double band) { 
         bandwidth = band;
     }
-    void constructResTable(int tableSize, int extension) {
-        int totalSize = tableSize + extension;
+    void constructResTable(int tableSize, int leadTime) {
+        //TODO: why leadtime is added
+        int totalSize = tableSize + leadTime;
         for (int i = 1; i <= totalSize; i++)
-            reservationTable.push_back(bandwidth);
-        //std::cout<<"Yes it's constructing! Size: "<<totalSize<<" "<<reservationTable.size()<<std::endl;
+            availableBandwidthTable.push_back(bandwidth);
+        
     }
     //return the first bandwidth value in the reservation table, and push back a new bandwidth value.
     double signaling() {
-        double theReturnBand = reservationTable.front();
-        reservationTable.erase(reservationTable.begin());
-        reservationTable.push_back(bandwidth);
+        double theReturnBand = availableBandwidthTable.front();
+        availableBandwidthTable.erase(availableBandwidthTable.begin());
+        availableBandwidthTable.push_back(bandwidth);
         return theReturnBand;
     }
     void printResTable()  {
-        for(int i = 0; i < reservationTable.size(); i++)
+        for(int i = 0; i < availableBandwidthTable.size(); i++)
         {
-            cout<<reservationTable[i]<<" ";
+            cout<<availableBandwidthTable[i]<<" ";
         }
         cout<<endl;
     }

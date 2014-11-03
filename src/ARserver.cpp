@@ -19,7 +19,7 @@ using namespace std;
 ARserver::ARserver(int AS_num, int AR_TimeWindow_size, int lead_time, int single_TimeSlot_size, string topology_path)
 {
     ARWindowSize = AR_TimeWindow_size;
-    ARExtension = lead_time;
+    ARleadtime = lead_time;
     timeSlotSize=single_TimeSlot_size;
     AS_ID=AS_num;
 
@@ -31,27 +31,11 @@ ARserver::ARserver(int AS_num, int AR_TimeWindow_size, int lead_time, int single
     initializeARBGP();
     
     //creat an instance of IPCE module
-    IPCE_module=IPCE(ARWindowSize,ARExtension,numOfNodes);
+    IPCE_module=IPCE(ARWindowSize,ARleadtime,numOfNodes);
     //IPCE module reads intra network topology and save it in a new format to use in find path function
     IPCE_module.readTopology(topology.Intra_Links_table);
 
 }
-//TODO: Add comments ask sourav to show companies code reservoir labs
-void ARserver::initializeARBGP()
-{
-    //TODO: didn't understand why we need to have toplogy in this format again
-    for (int i = 0; i < topology.InterASLinks_table.size(); i++) {
-        //outgoing links
-        if (topology.InterASLinks_table[i].start_AS == AS_ID) {
-            AR_BGP_module.addMCNAccess(topology.InterASLinks_table[i].end_AS, 1, topology.InterASLinks_table[i].start_node, topology.InterASLinks_table[i].end_node);
-        } else {
-            AR_BGP_module.addMCNAccess(topology.InterASLinks_table[i].start_AS, 2, topology.InterASLinks_table[i].start_node, topology.InterASLinks_table[i].end_node);
-        }
-    }
-    //TODO: Should completely study it in ARBGP module - why we need it
-    AR_BGP_module.getMCNList();
-}
-
 
 void ARserver::readIntraTopology(string topology_path)
 {
@@ -183,13 +167,6 @@ void ARserver::readInterLinks(string topology_path)
     }
 }
 
-void ARserver::actionARBGPreceive(int from_AS,vector<NLRI> NLRI_vector)
-{
-    //TODO: Study details about what this function does.
-                AR_BGP_module.recvUpdate(from_AS, NLRI_vector);
-}
-
-
 ARSchedule_Node ARserver::actionSchedulerReceive(ARSchedule_Node ARSchNode)
 {
     ARSchedule_Node tmp;
@@ -199,8 +176,7 @@ ARSchedule_Node ARserver::actionSchedulerReceive(ARSchedule_Node ARSchNode)
     {
         //intra call
         //can be reserved
-        //TODO: Wrong AR_time Does not get any value, there should be a loop between different AR options. 
-        //cout << "AR_time: " <<ARSchNode.AR_time;
+
         if(IPCE_module.findPathAndReserv(ARSchNode.from_node,ARSchNode.to_node,ARSchNode.capacity,ARSchNode.duration,ARSchNode.AR_vector))
         {
             cout<<"One reservation made!"<<endl<<endl;
@@ -208,15 +184,6 @@ ARSchedule_Node ARserver::actionSchedulerReceive(ARSchedule_Node ARSchNode)
         else
         {
             cout << "no reservation" <<endl << endl ;
-            
-            /*
-            if(ARSchNode.AR_time < ARSchNode.AR_vector.size()-1)
-            {
-                tmp=new ARSchedule_Node(ARSchNode.from_AS,ARSchNode.from_node,ARSchNode.to_AS,ARSchNode.to_node,ARSchNode.send_time,ARSchNode.total_delay,ARSchNode.capacity,ARSchNode.duration,ARSchNode.AR_time+1,ARSchNode.AS_path,ARSchNode.AR_vector);
-                return tmp;
-            }
-             */
-
 
         }
     }
@@ -229,4 +196,26 @@ ARSchedule_Node ARserver::actionSchedulerReceive(ARSchedule_Node ARSchNode)
     return tmp;
 }
 
+
+
+void ARserver::initializeARBGP()
+{
+    //TODO: didn't understand why we need to have toplogy in this format again
+    for (int i = 0; i < topology.InterASLinks_table.size(); i++) {
+        //outgoing links
+        if (topology.InterASLinks_table[i].start_AS == AS_ID) {
+            AR_BGP_module.addMCNAccess(topology.InterASLinks_table[i].end_AS, 1, topology.InterASLinks_table[i].start_node, topology.InterASLinks_table[i].end_node);
+        } else {
+            AR_BGP_module.addMCNAccess(topology.InterASLinks_table[i].start_AS, 2, topology.InterASLinks_table[i].start_node, topology.InterASLinks_table[i].end_node);
+        }
+    }
+    //TODO: Should completely study it in ARBGP module - why we need it
+    AR_BGP_module.getMCNList();
+}
+
+void ARserver::actionARBGPreceive(int from_AS,vector<NLRI> NLRI_vector)
+{
+    //TODO: Study details about what this function does.
+                AR_BGP_module.recvUpdate(from_AS, NLRI_vector);
+}
 

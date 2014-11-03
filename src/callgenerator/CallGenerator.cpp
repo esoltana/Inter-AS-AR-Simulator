@@ -266,6 +266,7 @@ void CallGenerator::generateCall( double callQ_arrival_time, int windowsize, int
     if (indicator == 1.0) {
         //this values were determined based on common file 
         Capacity = USSTcap;
+        //duration is convereted to number of time slotes which required by this call (60min*60)/10=360 timeslot
         Duration = USSTduration * 60 / slot_length;
         
         //generate AR option times according to USSTn value

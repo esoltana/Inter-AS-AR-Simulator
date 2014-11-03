@@ -53,7 +53,7 @@ Initializer::Initializer() {
     //Create the required modules for each AS (ARServer which includes: Scheduler, ARBGP, IPCE and EPCE) for each AS
     for (int AS_ID= 1; AS_ID <= num_of_ASes; AS_ID++) {
         
-        //TODO: what are the required input values of ARServer class
+        //TODO: lead_time value is not correct, why multiply by 60
         //make an ARServer instance for each AS
         ARserver ARServer = ARserver(AS_ID, AR_TimeWindow_size, lead_time*60,single_TimeSlot_size,topology_path);
         
@@ -213,7 +213,7 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[])
                     ARSERVER_vector[i].AR_BGP_module.constructUpdate(0);
                 }
                 for (int i = 0; i < ARSERVER_vector.size(); i++) {
-                    ARSERVER_vector[i].AR_BGP_module.sendUpdate(current_time, ARBGP_Q, Delays,AR_TimeWindow_size,ARSERVER_vector[i].IPCE_module );
+                    //ARSERVER_vector[i].AR_BGP_module.sendUpdate(current_time, ARBGP_Q, Delays,AR_TimeWindow_size,ARSERVER_vector[i].IPCE_module );
                 }
                 break;
         }
@@ -224,9 +224,9 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[])
 void Initializer::generateFirstRoundCalls()
 {
     //for each AS, execute the call generator to generate a request
-    //TODO: change it to produce just one msg for testing
+    
     for (int i = 0; i < CallGenerator_vector.size(); i++) {
-    //for(int i=0; i<1;i++){
+    
         Call_Node tmp;
        
         //generate a call according to input parameters
@@ -328,6 +328,7 @@ void Initializer::readARsystemParams()
              index++;
         }else if(index==2)
         {
+            //TODO: may be should divided by timeslot to keep the number of time slots 
             iss >> AR_TimeWindow_size;
             index++;
         }else if (index==3)

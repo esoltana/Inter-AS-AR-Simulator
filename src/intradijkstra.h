@@ -38,8 +38,8 @@ class intradijkstra{
     * to noOfVertices - 1
  
     */
-        void read(int starting,int ending, int vnum, map<int,NodeTable>& edgedata, int start, int end, double capacity);
-        void readR(int starting, int ending, int vnum, map<int, NodeTable>& edgedata, int start, int end, double capacity_rate);
+        void read(int starting,int ending, int vnum, map<int,linkAvailableBandwithTable>& edgedata, int start, int end, double capacity);
+        
  
     /*
     * Function initialize initializes all the data members at the begining of

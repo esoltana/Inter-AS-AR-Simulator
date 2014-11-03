@@ -37,7 +37,7 @@ void intradijkstra::initialize() {
  * on certain edges(links) is less than capacity, then the value will also be set to INFINITY.
  * The matrix is used for computing a valid shortest path by using Dijkstra algorithm
  */
-void intradijkstra::read(int starting, int ending, int numNode, map<int, NodeTable>& intraLinks, int startTime, int endTime, double capacity) {
+void intradijkstra::read(int starting, int ending, int numNode, map<int, linkAvailableBandwithTable>& intraLinks, int startTime, int endTime, double capacity) {
     //TODO: the size of the matrix should be equal to number of nodes, not a fix value
     for (int i = 0; i < MAX; i++) {
         for (int j = 0; j < MAX; j++) {
@@ -45,7 +45,7 @@ void intradijkstra::read(int starting, int ending, int numNode, map<int, NodeTab
         }
     }
     numOfNodes = numNode;
-    for (std::map<int, NodeTable>::iterator iter = intraLinks.begin(); iter != intraLinks.end(); ++iter) {
+    for (std::map<int, linkAvailableBandwithTable>::iterator iter = intraLinks.begin(); iter != intraLinks.end(); ++iter) {
         int from_node = iter->first / 1000;
         int to_node = iter->first % 1000;
         //TODO: Why the difault value of Bandwidth is 10, it can be assigned according to input file
@@ -53,7 +53,7 @@ void intradijkstra::read(int starting, int ending, int numNode, map<int, NodeTab
 
         w = 10;
         for (int k = startTime; k <= endTime; k++) {
-            if (iter->second.reservationTable[k] < capacity) {
+            if (iter->second.availableBandwidthTable[k] < capacity) {
                 w = INFINITY;
                 break;
             }
@@ -65,37 +65,6 @@ void intradijkstra::read(int starting, int ending, int numNode, map<int, NodeTab
     dest = ending-1;
    
 }
-
-//TODO: Delete
-/*
- * This is another version of the above read()function. Here the input parameter capacity is replaced by capacity_rate. So the function, instead of using a fixed capacity value to determine the connectivity of edges, becomes
- * disconnecting those edges(links) whose available bandwidth is less than capacity_rate of their full capacity
- */
-void intradijkstra::readR(int starting, int ending, int vnum, map<int, NodeTable>& edgedata, int start, int end, double capacity_rate) {
-    for (int i = 0; i < MAX; i++) {
-        for (int j = 0; j < MAX; j++) {
-            adjMatrix[i][j] = INFINITY;
-        }
-    }
-    numOfNodes = vnum;
-    for (std::map<int, NodeTable>::iterator iter = edgedata.begin(); iter != edgedata.end(); ++iter) {
-        int from_node = iter->first / 1000;
-        int to_node = iter->first % 1000;
-        w = 10;
-        for (int k = start; k <= end; k++) {
-            if (iter->second.reservationTable[k] < capacity_rate*iter->second.bandwidth) {
-                w = INFINITY;
-                break;
-            }
-        }
-        adjMatrix[from_node-1][to_node-1] = w;
-    }
-    
-    source = starting-1;
-    dest = ending-1;
-    
-}
-
 
 
 /*
@@ -169,9 +138,6 @@ void intradijkstra::constructPath(int node) {
  * output the shortest path. If no valid path is found, then print 'no path' information(by printPaht() function)
  */
 void intradijkstra::output() {
-   
-
-   
 
     for (int j = 0; j < pathvector.size(); j++)
         pathvector[j]+=1;

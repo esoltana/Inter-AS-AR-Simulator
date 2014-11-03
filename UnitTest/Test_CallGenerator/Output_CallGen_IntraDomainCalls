@@ -1,4 +1,4 @@
-// Arrival time, [AR Options], Duration, Capacity, src AS, src node, dest AS, Dest node
+// Arrival time, [AR Options], Duration(number of timeslotes needed), Capacity(Gbps), src AS, src node, dest AS, Dest node
 0 [ 3 4 5 ] 46 10 1 5 1 4
 0.0034826 [ 125 430 1262 ] 60 1 1 5 1 1
 0.0359177 [ 3 4 5 ] 18 10 1 2 1 6

@@ -170,6 +170,7 @@ void ARBGP::constructUpdate(int flag) {
     //RIB_out.clear();
 }
 
+/*
 void ARBGP::sendUpdate(double send_time, priority_queue<ARBGP_Node, vector<ARBGP_Node>, MyComparatorARBGP>& ARBGP_Q, DelayStruc DFile, int recvwindow, IPCE& IPCE_M) {
 
     for (std::map<int, vector<NLRI> >::iterator iter = RIB_out.begin(); iter != RIB_out.end(); ++iter) {
@@ -222,16 +223,6 @@ void ARBGP::sendUpdate(double send_time, priority_queue<ARBGP_Node, vector<ARBGP
                         //finding the close
                     curr++;
                 }
-                /*
-                if (opening != 1 || close != 1440)
-                    cout << "opening:" << opening << "close:" << close << endl;
-                if (close == 0) {
-                    for (map<int, EdgeTable>::iterator iter = IPCE_M.intraASLinksAR.begin(); iter != IPCE_M.intraASLinksAR.end(); ++iter) {
-                        cout << "from " << iter->first / 1000 << " to " << iter->first % 1000 << ":";
-                        iter->second.printTable();
-                    }
-                }
-                 */
                 if (IPCE_M.findsinglePathR(tmpB.BR_of_this_AS, MCNlist[MCN_id].egress_links[i].first, threshold_capacity, curr, curr + 1)) {
                     close = recvwindow;
                     NLRI tmp_NLRI(tmpB);
@@ -256,6 +247,7 @@ void ARBGP::sendUpdate(double send_time, priority_queue<ARBGP_Node, vector<ARBGP
 
     RIB_out.clear();
 }
+*/
 
 void ARBGP::recvUpdate(int incomingAS, vector<NLRI> NLRI_vector) {
     for (int i = 0; i < NLRI_vector.size(); i++) {

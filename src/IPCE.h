@@ -17,9 +17,9 @@ class IPCE {
 private:
 
 public:
-    int windowSize, extSize;
+    int windowSize, ARleadtime;
     int num_nodes;
-    map<int, NodeTable> intraASLinksAR;
+    map<int, linkAvailableBandwithTable> intraASLinksAR;
     IPCE();
     IPCE(int reservationWindowSize, int extension, int numNode);
     void readTopology(vector<Intra_Link> intra_links);

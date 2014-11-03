@@ -106,6 +106,7 @@ int zipf(double alpha, int n)
   return(zipf_value);
 }
 
+
 double expon(double t)
 {
     double x = 1.0 / t;

@@ -2,7 +2,7 @@
 1
 //number of nodes in AS
 6
-//node1 node2 link-Weight Link-Rate (for intra-domain links)
+//node1 node2 link-Weight Link-Rate(GB) (for intra-domain links)
 1 2 1 32
 2 1 1 32
 1 5 1 32

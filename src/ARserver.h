@@ -15,18 +15,13 @@ class ARserver
 {
 public:
 	ARserver(int AS_num, int AR_TimeWindow_size, int lead_time, int single_TimeSlot_size, string topology_path);
-	void constructUpdate();
         
         void readIntraTopology(string topology_path);
         void readInterLinks(string topology_path);
         
-        void actionARBGPsend();
         void actionARBGPreceive(int from_AS,vector<NLRI> NLRI_vector);
         
-        void actionSchedulerSend();
         ARSchedule_Node actionSchedulerReceive(ARSchedule_Node ARSchNode);
-        
-        
         
         void initializeARBGP();
         
@@ -38,7 +33,7 @@ public:
         
 private:
         int AS_ID;
-	int ARWindowSize, ARExtension;
+	int ARWindowSize, ARleadtime;
         int timeSlotSize;
 };
 
