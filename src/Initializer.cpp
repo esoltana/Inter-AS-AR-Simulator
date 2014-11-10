@@ -55,7 +55,7 @@ Initializer::Initializer() {
         
         //TODO: lead_time value is not correct, why multiply by 60
         //make an ARServer instance for each AS
-        ARserver ARServer = ARserver(AS_ID, AR_TimeWindow_size, lead_time*60,single_TimeSlot_size,topology_path);
+        ARserver ARServer = ARserver(AS_ID, AR_TimeWindow_size, lead_time,single_TimeSlot_size,topology_path);
         
         
         //save nodeNume in the array
@@ -74,10 +74,9 @@ Initializer::Initializer() {
 
 void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[])
 {
-    
     //create vector of call generators
     for (int i = 1; i <= num_of_ASes; i++) {
-        CallGenerator callGen = CallGenerator(i);
+        CallGenerator callGen = CallGenerator(i,AR_TimeWindow_size,lead_time,single_TimeSlot_size);
         callGen.readNodeVector(nodeNum, num_of_ASes);
         //TODO: In future every AS should have its own call-gen parameters
         callGen.readCommonFile(call_gen_path);
@@ -90,13 +89,16 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[])
     //the arrival time of earliest reservation request call
     double ReqCall_earliest_time = 0;
     //get the execution time of earliest reservation request from Call queue
-    ReqCall_earliest_time = CALL_Q.top().arrival_time;
+    ReqCall_earliest_time = GeneratedCALL_Q.top().arrival_instant_in_sec;
   
     //the arrival time of sending BGP Update
     double BGP_update_time = DBL_MAX;
     //keep the current time
     double current_time = 0;
     
+    int result=0;
+    ofstream myfile;
+    myfile.open("callOutput.txt");
     //main loop
     //until the request time is within simulation time continue
     while (current_time <= simulation_time) {
@@ -113,9 +115,9 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[])
             ARBGP_earliest_time = ARBGP_Q.top().do_update_time;
         }
         //get the execution time of earliest call in ARSchedule Queue
-        if(!ARSchedule_Q.empty())
+        if(!Inter_AS_call_Q.empty())
         {
-            ARSchedule_earliest_time = ARSchedule_Q.top().do_decision_time;
+            ARSchedule_earliest_time = Inter_AS_call_Q.top().arrival_instance_in_sec;
         }
 
         //Check if ARBGP time is the smallest one
@@ -147,60 +149,85 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[])
                 break;
             case 2:
             {
-                //do AR Schedule Call
-                //update the current time to the current executing call
-                current_time = ARSchedule_Q.top().do_decision_time;
-                cout << "process a schedule: " ;
-                ARSchedule_Node tmp=ARSERVER_vector[ARSchedule_Q.top().to_AS - 1].actionSchedulerReceive(ARSchedule_Q.top());
+                //do Inter AS Call
                 
-                ARSchedule_Q.pop();
-                //TODO: tmp should be added for EPCE part not now
-                //if(tmp) 
-                //ARSchedule_Q.push(tmp);
+                
+                //TODO: should be completed for EPCE calls to be accepted 
+                
+                //update the current time to the current executing call
+                current_time = Inter_AS_call_Q.top().arrival_instance_in_sec;
+                
+                cout << "process an Inter AS call: " ;
+                
+                
+                
+                Inter_AS_call_Q.pop();
+                
+                
                  
                 break;
             }
             case 3:
             {
-                //accept a call
+                //accept a generated call
                 
-                current_time = CALL_Q.top().arrival_time;
-                cout << "process a call: arrival time:" << CALL_Q.top().arrival_time << "  capacity:" << CALL_Q.top().capacity << "  duration:" << CALL_Q.top().duration << "  AR-options:";
-                for (int i = 0; i < CALL_Q.top().AR_vec.size(); i++) {
-                    cout << CALL_Q.top().AR_vec[i] << " ";
+                current_time = GeneratedCALL_Q.top().arrival_instant_in_sec;
+                cout << "process a call: arrival_instant_in_sec:" << GeneratedCALL_Q.top().arrival_instant_in_sec << " arrival_instant_in_TS:" << GeneratedCALL_Q.top().arrival_instant_in_TS << "  capacity:" << GeneratedCALL_Q.top().capacity << "  duration:" << GeneratedCALL_Q.top().duration << "  AR-options:";
+                
+                for (int i = 0; i < GeneratedCALL_Q.top().AR_vec.size(); i++) {
+                    cout << GeneratedCALL_Q.top().AR_vec[i] << " ";
                 }
-                cout << " fromAS:" << CALL_Q.top().from_AS << "  fromNode:" << CALL_Q.top().from_node << "  ToAS:" << CALL_Q.top().to_AS << "  toNode:" << CALL_Q.top().to_node << endl <<endl;
-                //push this call into the ARSchedule_Q
-                ARSchedule_Node Sche_Node;
-                Sche_Node.from_AS = CALL_Q.top().from_AS;
-                Sche_Node.to_AS = CALL_Q.top().to_AS;
-                Sche_Node.send_time = CALL_Q.top().arrival_time;
-                Sche_Node.total_delay = 0;
-                Sche_Node.do_decision_time = CALL_Q.top().arrival_time;
-                Sche_Node.from_node = CALL_Q.top().from_node;
-                Sche_Node.to_node = CALL_Q.top().to_node;
-                Sche_Node.capacity = CALL_Q.top().capacity;
-                Sche_Node.duration = CALL_Q.top().duration;
-                for(int i = 0; i < CALL_Q.top().AR_vec.size(); i++)
+                cout << " fromAS:" << GeneratedCALL_Q.top().from_AS << "  fromNode:" << GeneratedCALL_Q.top().from_node << "  ToAS:" << GeneratedCALL_Q.top().to_AS << "  toNode:" << GeneratedCALL_Q.top().to_node << endl <<endl;
+                
+                //check if it is an Inter AS or Intra AS call
+                 if(GeneratedCALL_Q.top().from_AS == GeneratedCALL_Q.top().to_AS)
                 {
-                    Sche_Node.AR_vector.push_back(CALL_Q.top().AR_vec[i]);
-                }
-                ARSchedule_Q.push(Sche_Node);
+                     //call IPCE module
+                     result=ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].executeIntraCall(GeneratedCALL_Q.top());
+                    
+                     myfile << GeneratedCALL_Q.top().isUSST << " " << result << " " << GeneratedCALL_Q.top().from_AS << "\n";
+                     
+                 }else{
+                     //call EPCE module and generate Inter_AS_call
+                    
+                    //TODO: the send time and total time should be computed by EPCE module in ARSERVER and new call is generated.
+                    //push this call into the Inter_AS_Call_Queue
+                    Inter_AS_Call_Node InterASCall_Node;
+                    InterASCall_Node.from_AS = GeneratedCALL_Q.top().from_AS;
+                    InterASCall_Node.to_AS = GeneratedCALL_Q.top().to_AS;
+                    //InterASCall_Node.send_time = 
+                    //InterASCall_Node.total_delay =
+                    //InterASCall_Node.do_decision_time = 
+                    InterASCall_Node.from_node = GeneratedCALL_Q.top().from_node;
+                    InterASCall_Node.to_node = GeneratedCALL_Q.top().to_node;
+                    InterASCall_Node.capacity = GeneratedCALL_Q.top().capacity;
+                    InterASCall_Node.duration = GeneratedCALL_Q.top().duration;
+                    for(int i = 0; i < GeneratedCALL_Q.top().AR_vec.size(); i++)
+                    {
+                        InterASCall_Node.AR_vector.push_back(GeneratedCALL_Q.top().AR_vec[i]);
+                    }
+                    Inter_AS_call_Q.push(InterASCall_Node);
+                 }
+               
+                //Generate a new call
                 Call_Node tmp;
                 
-                CallGenerator_vector[CALL_Q.top().from_AS-1].generateCall(CALL_Q.top().arrival_time,AR_TimeWindow_size,lead_time,single_TimeSlot_size,1);
-                tmp.arrival_time = CallGenerator_vector[CALL_Q.top().from_AS-1].arrival_time;
-                tmp.from_AS = CALL_Q.top().from_AS;
-                tmp.from_node = CallGenerator_vector[CALL_Q.top().from_AS-1].source_node;
-                tmp.to_AS = CallGenerator_vector[CALL_Q.top().from_AS-1].dest_AS;
-                tmp.to_node = CallGenerator_vector[CALL_Q.top().from_AS-1].dest_node;
-                tmp.duration = CallGenerator_vector[CALL_Q.top().from_AS-1].Duration;
-                tmp.capacity = CallGenerator_vector[CALL_Q.top().from_AS-1].Capacity;
-                for (int j = 0; j < CallGenerator_vector[CALL_Q.top().from_AS-1].ARvec.size(); j++)
-                    tmp.AR_vec.push_back(CallGenerator_vector[CALL_Q.top().from_AS-1].ARvec[j]);
-                CALL_Q.pop();
-                CALL_Q.push(tmp);
-                ReqCall_earliest_time = CALL_Q.top().arrival_time;
+                CallGenerator_vector[GeneratedCALL_Q.top().from_AS-1].generateCall(GeneratedCALL_Q.top().arrival_instant_in_sec);
+                tmp.isUSST=CallGenerator_vector[GeneratedCALL_Q.top().from_AS-1].isUSST;
+                tmp.arrival_instant_in_sec = CallGenerator_vector[GeneratedCALL_Q.top().from_AS-1].arrival_time;
+                tmp.arrival_instant_in_TS = CallGenerator_vector[GeneratedCALL_Q.top().from_AS-1].arrival_timeslot;
+                tmp.from_AS = GeneratedCALL_Q.top().from_AS;
+                tmp.from_node = CallGenerator_vector[GeneratedCALL_Q.top().from_AS-1].source_node;
+                tmp.to_AS = CallGenerator_vector[GeneratedCALL_Q.top().from_AS-1].dest_AS;
+                tmp.to_node = CallGenerator_vector[GeneratedCALL_Q.top().from_AS-1].dest_node;
+                tmp.duration = CallGenerator_vector[GeneratedCALL_Q.top().from_AS-1].Duration;
+                tmp.capacity = CallGenerator_vector[GeneratedCALL_Q.top().from_AS-1].Capacity;
+                for (int j = 0; j < CallGenerator_vector[GeneratedCALL_Q.top().from_AS-1].ARvec.size(); j++)
+                    tmp.AR_vec.push_back(CallGenerator_vector[GeneratedCALL_Q.top().from_AS-1].ARvec[j]);
+                GeneratedCALL_Q.pop();
+                GeneratedCALL_Q.push(tmp);
+                ReqCall_earliest_time = GeneratedCALL_Q.top().arrival_instant_in_sec;
+                
                 break;
             }
             case 4:
@@ -219,6 +246,7 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[])
         }
 
     }
+    myfile.close();
 }
 
 void Initializer::generateFirstRoundCalls()
@@ -230,9 +258,11 @@ void Initializer::generateFirstRoundCalls()
         Call_Node tmp;
        
         //generate a call according to input parameters
-        CallGenerator_vector[i].generateCall(0,AR_TimeWindow_size,lead_time,single_TimeSlot_size,1);
+        CallGenerator_vector[i].generateCall(0);
         //save the produced request parameters in Queue
-        tmp.arrival_time = CallGenerator_vector[i].arrival_time;
+        tmp.isUSST=CallGenerator_vector[i].isUSST;
+        tmp.arrival_instant_in_sec = CallGenerator_vector[i].arrival_time;
+        tmp.arrival_instant_in_TS = CallGenerator_vector[i].arrival_timeslot;
         tmp.from_AS = i + 1;
         tmp.from_node = CallGenerator_vector[i].source_node;
         tmp.to_AS = CallGenerator_vector[i].dest_AS;
@@ -243,7 +273,7 @@ void Initializer::generateFirstRoundCalls()
         for (int j = 0; j < CallGenerator_vector[i].ARvec.size(); j++)
             tmp.AR_vec.push_back(CallGenerator_vector[i].ARvec[j]);
         //push the request in Call Queue
-        CALL_Q.push(tmp);
+        GeneratedCALL_Q.push(tmp);
     }
 }
 
@@ -330,6 +360,7 @@ void Initializer::readARsystemParams()
         {
             //TODO: may be should divided by timeslot to keep the number of time slots 
             iss >> AR_TimeWindow_size;
+           
             index++;
         }else if (index==3)
         {

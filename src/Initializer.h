@@ -40,6 +40,7 @@ public:
     int single_TimeSlot_size;
     // length of AR window(seconds)
     int AR_TimeWindow_size;
+    
      //Lead time in timeslots
     int lead_time;
 
@@ -52,9 +53,9 @@ public:
     //Priority Queue to keep ARBGP update received msgs in order (Priority Queue needs comparateor function)
     priority_queue<ARBGP_Node, vector<ARBGP_Node>, MyComparatorARBGP> ARBGP_Q;
     //Priority Queue to keep Create reservation Request call from neighbor AR servers (EPCE) 
-    priority_queue<ARSchedule_Node, vector<ARSchedule_Node>, MyComparatorARSchedule> ARSchedule_Q;
+    priority_queue<Inter_AS_Call_Node, vector<Inter_AS_Call_Node>, MyComparatorInter_AS_Call> Inter_AS_call_Q;
     //Priority Queue to save Create reservation Request from call generator within the domain of that AR server
-    priority_queue<Call_Node, vector<Call_Node>, MyComparatorCALL> CALL_Q;
+    priority_queue<Call_Node, vector<Call_Node>, MyComparatorCALL> GeneratedCALL_Q;
 ////////////////////////////    
     
 private:

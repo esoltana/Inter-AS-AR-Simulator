@@ -17,7 +17,7 @@ class IPCE {
 private:
 
 public:
-    int windowSize, ARleadtime;
+    int windowSizeTimeslot, ARleadtime;
     int num_nodes;
     map<int, linkAvailableBandwithTable> intraASLinksAR;
     IPCE();

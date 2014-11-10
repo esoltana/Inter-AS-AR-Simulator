@@ -18,7 +18,8 @@ using namespace std;
 
 ARserver::ARserver(int AS_num, int AR_TimeWindow_size, int lead_time, int single_TimeSlot_size, string topology_path)
 {
-    ARWindowSize = AR_TimeWindow_size;
+    ARWindow_timeSlot=AR_TimeWindow_size/single_TimeSlot_size;
+ 
     ARleadtime = lead_time;
     timeSlotSize=single_TimeSlot_size;
     AS_ID=AS_num;
@@ -31,7 +32,7 @@ ARserver::ARserver(int AS_num, int AR_TimeWindow_size, int lead_time, int single
     initializeARBGP();
     
     //creat an instance of IPCE module
-    IPCE_module=IPCE(ARWindowSize,ARleadtime,numOfNodes);
+    IPCE_module=IPCE(ARWindow_timeSlot,ARleadtime,numOfNodes);
     //IPCE module reads intra network topology and save it in a new format to use in find path function
     IPCE_module.readTopology(topology.Intra_Links_table);
 
@@ -167,33 +168,24 @@ void ARserver::readInterLinks(string topology_path)
     }
 }
 
-ARSchedule_Node ARserver::actionSchedulerReceive(ARSchedule_Node ARSchNode)
+int ARserver::executeIntraCall(Call_Node IntraCallNode)
 {
-    ARSchedule_Node tmp;
-    cout << "  schedule in AR server from: " << ARSchNode.from_AS << " to: " << ARSchNode.to_AS << endl;
+    int result=0;
+    cout << "  execute Intra call in AR Server: " << IntraCallNode.from_AS << " to: " << IntraCallNode.to_AS << endl;
     
-    if(ARSchNode.from_AS == ARSchNode.to_AS)
-    {
-        //intra call
-        //can be reserved
 
-        if(IPCE_module.findPathAndReserv(ARSchNode.from_node,ARSchNode.to_node,ARSchNode.capacity,ARSchNode.duration,ARSchNode.AR_vector))
+        if(IPCE_module.findPathAndReserv(IntraCallNode.from_node,IntraCallNode.to_node,IntraCallNode.capacity,IntraCallNode.duration,IntraCallNode.AR_vec))
         {
+            result=1;
             cout<<"One reservation made!"<<endl<<endl;
-        }
+        } 
         else
         {
+            result=0;
             cout << "no reservation" <<endl << endl ;
 
         }
-    }
-    else
-    {
-        //inter call
-        //EPCE should be called
-        cout<<"inter AS calls not tested!"<<endl;
-    }
-    return tmp;
+    return result;
 }
 
 

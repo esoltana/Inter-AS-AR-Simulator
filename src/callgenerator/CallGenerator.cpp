@@ -17,7 +17,11 @@
 
 using namespace std;
 
-CallGenerator::CallGenerator(int AS_ID) {
+CallGenerator::CallGenerator(int AS_ID,int window_size_sec, int lead_time, int slotlength) {
+    
+    windowsizeTimeslot=window_size_sec/slotlength;
+    leadtime=lead_time;
+    slot_length=slotlength;
     //the index of AS
     asID = AS_ID;
     //An array which used for producing random value to choos USST or EST in the randGen file
@@ -134,19 +138,29 @@ Example input file:C:\Users\mmv\Dropbox\AAAMEDPaperProject\common\src_dst_prob_m
 Function loads the matrix from the file into the CallGenerator variable "theMatrix"
 */
 void CallGenerator::readprobMatrix(string path) {
+ 
     //define an input stream
     ifstream inf(path.c_str());
-    //if it opened correctly
-    if (inf.is_open()) {
-        //read 2D matrix and save it in the array probMatrix
-        for (int i = 0; i < total_node; i++) {
-            for (int j = 0; j < total_node; j++) {
-                inf >> probMatrix[i][j];
-            }
+    
+    string line;
+    int i=0;
+    while(getline(inf, line))
+    {
+        istringstream iss(line, istringstream::in);
+        
+        //check to ignore empty and commented lines
+        if (!line.length())
+            continue;
+
+        if (line[0] == '/' && line[1]=='/') // Ignore the line starts with //
+            continue;
+    
+        for (int j = 0; j < total_node; j++) {
+            iss >> probMatrix[i][j];
+
         }
-    } else {
-        cout << "Unable to open common file for AS" << asID << "!";
-    }
+        i++;
+    } 
     inf.close();
 }
 
@@ -207,11 +221,12 @@ int CallGenerator::mapIndex(int AS_num, int vertex_num) {
  * 
  * After calling this function, you can acquire all the parameters from public variables source_node, dest_AS, dest_node, ARvec,Duration and Capacity.  
 */
-void CallGenerator::generateCall( double callQ_arrival_time, int windowsize, int leadtime, int slot_length, int flag) {
+void CallGenerator::generateCall(double callQ_arrival_time){
     //why callQ_arrival_time: for new generated calls we just need the expon function but for the generated calls after executing one of the previous calls, the arrival time should be after the time of the one which executed.
     //calQ_arrival_time is zero for new generated calls
     arrival_time= expon(arrival_rate) + callQ_arrival_time;
-            
+    arrival_timeslot=arrival_time/slot_length;
+    
     if (ARvec.size() != 0)
         ARvec.clear();
     
@@ -228,28 +243,35 @@ void CallGenerator::generateCall( double callQ_arrival_time, int windowsize, int
     //generate an index for this node 
     int thisindex = mapIndex(asID, source_node);
     
+ 
+    
     double probvec[total_node];
     //get the probability values of this specific source node (according to the row number)
     for (int i = 0; i < total_node; i++)
+    {
         probvec[i] = probMatrix[thisindex][i];
+    }
     
     
     //save the ASindex in the array to use it for producing random value for which AS to be Dest AS
     double candvec[total_node];
     for (int i = 0; i < total_node; i++)
+    {
         candvec[i] = (double) i;
-    
+
+    }
+
     
     int tmpindex;
     
     //inter-domain
-    if (flag == 0) {
+    //if (flag == 0) {
         //TODO: How does exactly this function work?
         //produce a random dest AS and dest nodeNum in index format
         tmpindex = (int) rand_prob_vector(candvec, probvec, total_node);
         //convert the produced index to the corresponding dest_AS and Dest_Node
         mapNode(tmpindex);
-    } else   //intra-domain
+    /*} else   //intra-domain
     {
         //for intra domain the Dest_AS is within this AS and equals asnum
         dest_AS = asID;
@@ -258,15 +280,18 @@ void CallGenerator::generateCall( double callQ_arrival_time, int windowsize, int
         //continue producing a new dest node if it equals with source node
         while (dest_node == source_node)
             dest_node = (rand() % vertices_num_of_this_AS) + 1;
-    }
+    }*/
     
     //whether it's a USST call or EST call
     double indicator = rand_prob_vector(USST_EST, USST_EST_prob, 2);
+
     //USST
     if (indicator == 1.0) {
+        isUSST=1;
         //this values were determined based on common file 
         Capacity = USSTcap;
-        //duration is convereted to number of time slotes which required by this call (60min*60)/10=360 timeslot
+        //duration is convereted to number of time slotes which required by this call (60min*60)sec/10sec-slot=360 timeslot
+        //TODO: if duration is not a divisible to time slot -> ceil of that devision should be considered
         Duration = USSTduration * 60 / slot_length;
         
         //generate AR option times according to USSTn value
@@ -275,12 +300,11 @@ void CallGenerator::generateCall( double callQ_arrival_time, int windowsize, int
             //if the AR vector is not empty produce one ARoption randomely which is not equal to the last inserted element in ARvec
             if (ARvec.size() != 0) {
                 do {
-                    ARoption = rand() % (windowsize) + leadtime;
+                    ARoption = rand() % (windowsizeTimeslot)+ arrival_timeslot + leadtime;
                 } while (find(ARvec.begin(), ARvec.end(), ARoption) != ARvec.end());
             } else
                 //if ARvec is empty, produce a random ARoption (doesn't need to check the last element of ARvec)
-                //TODO: check if the value is correct
-                ARoption = rand() % (24 * 60) + 1;
+                ARoption = rand() % (windowsizeTimeslot)+ arrival_timeslot + leadtime;
             //push the produced AR option into ARvec
             ARvec.push_back(ARoption);
         }
@@ -290,13 +314,15 @@ void CallGenerator::generateCall( double callQ_arrival_time, int windowsize, int
 
     }//EST
     else if (indicator == 2.0) {
+        isUSST=2;
+        
         Capacity = ESTcap;
         //produce the duration value according to zipf distribution
         Duration = (zipf(zipf_alpha, (ESTduration_max - ESTduration_min)) + ESTduration_min)*60 / slot_length;
         //push the sequential AR options based on the number of ESTn
         for (int i = 0; i < ESTn; i++) {
-            //TODO: check if the value is correct 
-            ARvec.push_back(arrival_time+leadtime + i); 
+            //TODO: now the nearest time slots are selected, but the other kind of startTimes like one-other should be checked
+            ARvec.push_back(arrival_timeslot+leadtime + i); 
         }
     } else
         cout << "USST EST selection error!" << endl;

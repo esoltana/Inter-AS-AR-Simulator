@@ -13,7 +13,7 @@
 IPCE::IPCE(){}
 
 IPCE::IPCE(int reservationWindowSize, int lead_time, int numNode) {
-    windowSize = reservationWindowSize;
+    windowSizeTimeslot = reservationWindowSize;
     ARleadtime = lead_time;
     num_nodes=numNode;
 }
@@ -28,25 +28,27 @@ void IPCE::readTopology(vector<Intra_Link> intra_links) {
         //create an index based on start and end nodes
         int index = node1 * 1000 + node2;
         linkAvailableBandwithTable tmp;
-        tmp.setBand(intra_links[i].bandwidth);
+        tmp.setBandandWeight(intra_links[i].bandwidth, intra_links[i].weight);
         
-        tmp.constructResTable(windowSize, ARleadtime);
+        tmp.constructResTable(windowSizeTimeslot, ARleadtime);
+        
         intraASLinksAR[index] = tmp;
     }
 }
 
 
 bool IPCE::findPathAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec) {
-    cout << "find path in IPCE " << endl;
-    intradijkstra G;
     
+    intradijkstra G;
+    cout << "find path in IPCE " << endl;
     for (int i = 0; i < ARvec.size(); i++) {
         
         G.read(source_node, dest_node, num_nodes, intraASLinksAR, ARvec[i], ARvec[i] + duration, capacity);
+ 
         
         G.calculateDistance();
         
-        
+
         //check if a path is found
         if (G.flag == 0)
             //no path between these two nodes

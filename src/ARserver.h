@@ -21,7 +21,7 @@ public:
         
         void actionARBGPreceive(int from_AS,vector<NLRI> NLRI_vector);
         
-        ARSchedule_Node actionSchedulerReceive(ARSchedule_Node ARSchNode);
+        int executeIntraCall(Call_Node IntraCallNode);
         
         void initializeARBGP();
         
@@ -33,7 +33,7 @@ public:
         
 private:
         int AS_ID;
-	int ARWindowSize, ARleadtime;
+	int ARWindow_timeSlot, ARleadtime;
         int timeSlotSize;
 };
 

@@ -63,19 +63,21 @@ class linkAvailableBandwithTable {
 public:
     std::vector<double> availableBandwidthTable;
     double bandwidth;
-
-    void setBand(double band) { 
+    int weight;
+    void setBandandWeight(double band, int w) { 
         bandwidth = band;
+        weight=w;
     }
     void constructResTable(int tableSize, int leadTime) {
-        //TODO: why leadtime is added
-        int totalSize = tableSize + leadTime;
+        //TODO: make sure that we need to add leadTime or not
+        int totalSize = tableSize;
         for (int i = 1; i <= totalSize; i++)
             availableBandwidthTable.push_back(bandwidth);
         
     }
     //return the first bandwidth value in the reservation table, and push back a new bandwidth value.
     double signaling() {
+        
         double theReturnBand = availableBandwidthTable.front();
         availableBandwidthTable.erase(availableBandwidthTable.begin());
         availableBandwidthTable.push_back(bandwidth);
@@ -362,36 +364,34 @@ private:
 ///////////---------------------------
 
 ////////////implement the ARScheduling queue
-struct ARSchedule_Node {
+struct Inter_AS_Call_Node {
     int from_AS;
     int to_AS;
     int from_node;
     int to_node;
-    //this is the index
-    int AR_time;
-    double send_time;
-    double total_delay;
-    double do_decision_time;
+    
+    double send_time_in_sec;
+    double prop_delay;
+    double arrival_instance_in_sec;
     vector<int> AS_path;
     vector<int> AR_vector;
     int next_AS;
     double capacity;
     int duration;
-    ARSchedule_Node * next_node = NULL;
-        ARSchedule_Node()
+    Inter_AS_Call_Node * next_node = NULL;
+        Inter_AS_Call_Node()
     {}
-    ARSchedule_Node(int f_AS, int f_node, int t_AS, int t_node, double s_time, double t_delay,double Capacity, int Duration,int artime, vector<int> AS_P,vector<int>ARvec)
+    Inter_AS_Call_Node(int f_AS, int f_node, int t_AS, int t_node, double s_time, double t_delay,double Capacity, int Duration,int artime, vector<int> AS_P,vector<int>ARvec)
     {
         from_AS = f_AS;
         to_AS = t_AS;
         from_node = f_node;
         to_node = t_node;
-        send_time = s_time;
-        total_delay = t_delay;
-        do_decision_time = s_time + t_delay;
+        send_time_in_sec = s_time;
+        prop_delay = t_delay;
+        arrival_instance_in_sec = s_time + t_delay;
         capacity = Capacity;
         duration = Duration;
-        AR_time = artime;
         for(int i = 0 ; i < AS_P.size(); i++)
         {
             AS_path.push_back(AS_P[i]);
@@ -401,55 +401,49 @@ struct ARSchedule_Node {
             AR_vector.push_back(ARvec[i]);
         }
     }
-    void nextAR()
-    {
-        AR_time++;
-    }
+    
 };
 
-struct MyComparatorARSchedule {
-  bool operator() (ARSchedule_Node arg1, ARSchedule_Node arg2) {
-    return arg1.do_decision_time >= arg2.do_decision_time; //calls your operator
+struct MyComparatorInter_AS_Call {
+  bool operator() (Inter_AS_Call_Node arg1, Inter_AS_Call_Node arg2) {
+    return arg1.arrival_instance_in_sec >= arg2.arrival_instance_in_sec; //calls your operator
   }
 };
 
-struct ARSchedule_head_Node {
+struct Inter_AS_Call_head_Node {
     int count;
-    ARSchedule_Node * h ;
+    Inter_AS_Call_Node * h ;
 };
 
-class ARSchedule_queue {
+class Inter_AS_Call_queue {
 public:
     double earliest_time;
 
-    ARSchedule_queue() {
+    Inter_AS_Call_queue() {
         hn.count = 0;
         earliest_time = DBL_MAX;
     }
 
-    ~ARSchedule_queue() {
-
-    }
 
     void addNode(int fromAS,int fromNode, int toAS,int toNode, double sendTime, double totalDelay,double capacity, int duration,int artime, vector<int> AS_path, vector<int> ARvec) {
         hn.count++;
-        ARSchedule_Node * curr = hn.h;
-        ARSchedule_Node tmp(fromAS,fromNode,toAS, toNode,sendTime,totalDelay,capacity,duration,artime,AS_path,ARvec);
+        Inter_AS_Call_Node * curr = hn.h;
+        Inter_AS_Call_Node tmp(fromAS,fromNode,toAS, toNode,sendTime,totalDelay,capacity,duration,artime,AS_path,ARvec);
         while (curr->next_node != NULL) {
-            if (tmp.do_decision_time >= curr->next_node->do_decision_time) {
+            if (tmp.arrival_instance_in_sec >= curr->next_node->arrival_instance_in_sec) {
                 tmp.next_node = curr->next_node;
                 curr->next_node = &tmp;
-                earliest_time = tmp.do_decision_time;
+                earliest_time = tmp.arrival_instance_in_sec;
                 return;
             }
         }
         curr->next_node = &tmp;
         tmp.next_node = NULL;
-        earliest_time = tmp.do_decision_time;
+        earliest_time = tmp.arrival_instance_in_sec;
     }
 
-    ARSchedule_Node* popNode() {
-        ARSchedule_Node* tmp;
+    Inter_AS_Call_Node* popNode() {
+        Inter_AS_Call_Node* tmp;
         if(hn.h->next_node == NULL)
         tmp = NULL;
         else {
@@ -458,14 +452,14 @@ public:
             hn.count--;
         }
         if (hn.count != 0)
-            earliest_time = hn.h->next_node->do_decision_time;
+            earliest_time = hn.h->next_node->arrival_instance_in_sec;
         else
             earliest_time = DBL_MAX;
         return tmp;
     }
 
 private:
-    ARSchedule_head_Node hn;
+    Inter_AS_Call_head_Node hn;
 
 };
 /////////////////////////
@@ -504,7 +498,8 @@ private:
 //
 //////call data structure
 struct Call_Node{
-    double arrival_time;
+    double arrival_instant_in_sec;
+    int arrival_instant_in_TS;
     vector<int> AR_vec;
     int from_AS;
     int from_node;
@@ -512,11 +507,12 @@ struct Call_Node{
     int to_node;
     int duration;
     double capacity;
+    int isUSST;
 };
 
 struct MyComparatorCALL {
   bool operator() (Call_Node arg1, Call_Node arg2) {
-    return arg1.arrival_time >= arg2.arrival_time; //calls your operator
+    return arg1.arrival_instant_in_sec >= arg2.arrival_instant_in_sec; //calls your operator
   }
 };
 

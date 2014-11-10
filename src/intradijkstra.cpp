@@ -37,30 +37,35 @@ void intradijkstra::initialize() {
  * on certain edges(links) is less than capacity, then the value will also be set to INFINITY.
  * The matrix is used for computing a valid shortest path by using Dijkstra algorithm
  */
-void intradijkstra::read(int starting, int ending, int numNode, map<int, linkAvailableBandwithTable>& intraLinks, int startTime, int endTime, double capacity) {
+void intradijkstra::read(int starting, int ending, int numNode, map<int, linkAvailableBandwithTable>& intraLinks, int startTimeSlot, int endTimeSlot, double capacity) {
     //TODO: the size of the matrix should be equal to number of nodes, not a fix value
     for (int i = 0; i < MAX; i++) {
         for (int j = 0; j < MAX; j++) {
             adjMatrix[i][j] = INFINITY;
         }
     }
+
     numOfNodes = numNode;
     for (std::map<int, linkAvailableBandwithTable>::iterator iter = intraLinks.begin(); iter != intraLinks.end(); ++iter) {
         int from_node = iter->first / 1000;
         int to_node = iter->first % 1000;
-        //TODO: Why the difault value of Bandwidth is 10, it can be assigned according to input file
-        //TODO: weight is not considered
+       
 
-        w = 10;
-        for (int k = startTime; k <= endTime; k++) {
+        w=iter->second.weight;
+
+        for (int k = startTimeSlot; k < endTimeSlot; k++) {
+
             if (iter->second.availableBandwidthTable[k] < capacity) {
+
                 w = INFINITY;
                 break;
             }
+
         }
         adjMatrix[from_node-1][to_node-1] = w;
         
     }
+        
     source = starting-1;
     dest = ending-1;
    

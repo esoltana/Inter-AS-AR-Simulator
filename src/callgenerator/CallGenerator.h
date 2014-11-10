@@ -5,17 +5,18 @@ using namespace std;
 
 class CallGenerator{
 public:
-    CallGenerator(int AS_ID);
+    CallGenerator(int AS_ID,int window_size_sec, int lead_time, int slotlength);
     void readNodeVector(int nodeNumArray[],  int arraySize);
     void mapNode(int index);
     int mapIndex(int AS_num, int vertex_num);
-    void generateCall(double arr, int windowsize, int leadtime,      int slot_length , int flag);
+    void generateCall(double arr);
     void readCommonFile(string path);
     void readprobMatrix(string path);
 
     /*call generation related parameters */
     double arrival_rate;
     double arrival_time;
+    int arrival_timeslot;
     
       //used for call generating funciton
     int source_node, dest_AS, dest_node;
@@ -26,6 +27,8 @@ public:
     int Duration;
     //keep the rate of USST and EST 
     double Capacity;
+    
+    int isUSST;
     
 private:
     //the ID of the AS that this call generator belongs to
@@ -38,7 +41,9 @@ private:
     //matrix to keep src-dest probabilities
     double probMatrix[75][75];
     
-    
+    int windowsizeTimeslot;
+    int leadtime;
+    int slot_length;
    
     
     //read from the file (rate value)
