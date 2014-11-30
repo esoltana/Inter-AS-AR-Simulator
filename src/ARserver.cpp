@@ -171,18 +171,18 @@ void ARserver::readInterLinks(string topology_path)
 int ARserver::executeIntraCall(Call_Node IntraCallNode)
 {
     int result=0;
-    cout << "  execute Intra call in AR Server: " << IntraCallNode.from_AS << " to: " << IntraCallNode.to_AS << endl;
+    //cout << "  execute Intra call in AR Server: " << IntraCallNode.from_AS << " to: " << IntraCallNode.to_AS << endl;
     
 
         if(IPCE_module.findPathAndReserv(IntraCallNode.from_node,IntraCallNode.to_node,IntraCallNode.capacity,IntraCallNode.duration,IntraCallNode.AR_vec))
         {
             result=1;
-            cout<<"One reservation made!"<<endl<<endl;
+            //cout<<"One reservation made!"<<endl<<endl;
         } 
         else
         {
             result=0;
-            cout << "no reservation" <<endl << endl ;
+            //cout << "no reservation" <<endl << endl ;
 
         }
     return result;

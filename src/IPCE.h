@@ -27,6 +27,8 @@ public:
     bool findsinglePathR(int source_vertex, int dest_vertex, double capacity_rate, int duration, int AR_time);
     bool findsinglePathAndReserv(int source_vertex, int dest_vertex, double capacity, int duration, int AR_time);
     bool reserveCall(vector<int> pathVector, int start_time, int end_time, double capacity);
+    int selectedOptionIndex;
+    int pathLength;
 };
 
 

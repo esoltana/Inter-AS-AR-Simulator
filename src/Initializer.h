@@ -8,16 +8,19 @@
 #include "DataStructures.h"
 #include "ARserver.h"
 #include "callgenerator/CallGenerator.h"
+
+
 using namespace std;
 
 class Initializer {
 public:
-    Initializer();
+    Initializer(int arrRate);
     void readSimulationParam(string path);
     void readARsystemParams();
     void readNumberOfASes();
     void readDelayFile(DelayStruc Delays);
-    void simulateMsgPassing(DelayStruc Delays,int nodeNum[]);
+    void simulateMsgPassing(DelayStruc Delays,int nodeNum[], int arrRate);
+    
     void generateFirstRoundCalls();
     
     int num_of_ASes;

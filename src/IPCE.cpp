@@ -40,7 +40,12 @@ void IPCE::readTopology(vector<Intra_Link> intra_links) {
 bool IPCE::findPathAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec) {
     
     intradijkstra G;
-    cout << "find path in IPCE " << endl;
+    //cout << "find path in IPCE " << endl;
+    vector <int> pathvector;
+    int turn=0;
+    selectedOptionIndex=-1;
+    pathLength=-1;
+    //For The first scenario to find the first possible path
     for (int i = 0; i < ARvec.size(); i++) {
         
         G.read(source_node, dest_node, num_nodes, intraASLinksAR, ARvec[i], ARvec[i] + duration, capacity);
@@ -54,13 +59,53 @@ bool IPCE::findPathAndReserv(int source_node, int dest_node, double capacity, in
             //no path between these two nodes
             continue;
         else {
+            
             G.output();
+            selectedOptionIndex=i;
+            pathLength=G.pathvector.size();
             reserveCall(G.pathvector, ARvec[i], ARvec[i] + duration, capacity);
             return true;
         }
     }
     return false;
+    /*
+    for (int i = 0; i < ARvec.size(); i++) {
+        
+        G.read(source_node, dest_node, num_nodes, intraASLinksAR, ARvec[i], ARvec[i] + duration, capacity);
+ 
+        
+        G.calculateDistance();
+        
 
+        //check if a path is found
+        if (G.flag == 0)
+            //no path between these two nodes
+            continue;
+        else {
+            
+            G.output();
+            turn++;
+            if(turn==1)
+            {
+                pathvector=G.pathvector;
+                selectedOptionIndex=i;
+                pathLength=G.pathvector.size();
+            }
+            else if(pathvector.size()> G.pathvector.size())
+            {   pathvector=G.pathvector;
+                selectedOptionIndex=i;
+                pathLength=G.pathvector.size();
+            }
+            
+        }
+    }
+    if(selectedOptionIndex!=-1)
+    {
+        reserveCall(pathvector, ARvec[selectedOptionIndex], ARvec[selectedOptionIndex] + duration, capacity);
+        return true;
+    }else
+        return false;
+     */ 
 }
 
 

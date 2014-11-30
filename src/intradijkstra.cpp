@@ -129,7 +129,7 @@ void intradijkstra::constructPath(int node) {
         pathvector.push_back(node);
         flag = 1;
     } else if (predecessor[node] == -1) {
-        cout << "No path from " << source+1 << "to" << node+1 << endl;
+        //cout << "No path from " << source+1 << "to" << node+1 << endl;
         flag = 0;
     } else {
 
@@ -146,10 +146,10 @@ void intradijkstra::output() {
 
     for (int j = 0; j < pathvector.size(); j++)
         pathvector[j]+=1;
-    cout << "path:";
-    for (int j = 0; j < pathvector.size(); j++)
-        cout << pathvector[j] << "--";
-    cout << "->distance:" << distance[dest] << endl;
+    //cout << "path:";
+    //for (int j = 0; j < pathvector.size(); j++)
+        //cout << pathvector[j] << "--";
+    //cout << "->distance:" << distance[dest] << endl;
 }
 
 

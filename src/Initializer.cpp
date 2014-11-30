@@ -31,7 +31,7 @@
 
 using namespace std;
 
-Initializer::Initializer() {
+Initializer::Initializer(int arrRate) {
     
     
     readSimulationParam("InputParameters//Simulation-related-input-params");
@@ -66,13 +66,13 @@ Initializer::Initializer() {
     }
 
    
-    simulateMsgPassing(Delays, nodeNum);
+    simulateMsgPassing(Delays, nodeNum, arrRate);
     
     
     
 }
 
-void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[])
+void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[],int arrRate)
 {
     //create vector of call generators
     for (int i = 1; i <= num_of_ASes; i++) {
@@ -80,6 +80,8 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[])
         callGen.readNodeVector(nodeNum, num_of_ASes);
         //TODO: In future every AS should have its own call-gen parameters
         callGen.readCommonFile(call_gen_path);
+        //TODO: is added for simulation should be changed
+        callGen.arrival_rate=arrRate;
         CallGenerator_vector.push_back(callGen);
     }
     
@@ -94,13 +96,18 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[])
     //the arrival time of sending BGP Update
     double BGP_update_time = DBL_MAX;
     //keep the current time
+
+    //keep the current time
     double current_time = 0;
     
     int result=0;
+    
     ofstream myfile;
-    myfile.open("callOutput.txt");
+    myfile.open("callOutput.txt", ios::app);
     //main loop
     //until the request time is within simulation time continue
+    
+    
     while (current_time <= simulation_time) {
         
         //Variables for saving the earliest time of ARBGP calls and ARSchedule
@@ -157,7 +164,7 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[])
                 //update the current time to the current executing call
                 current_time = Inter_AS_call_Q.top().arrival_instance_in_sec;
                 
-                cout << "process an Inter AS call: " ;
+                //cout << "process an Inter AS call: " ;
                 
                 
                 
@@ -172,20 +179,21 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[])
                 //accept a generated call
                 
                 current_time = GeneratedCALL_Q.top().arrival_instant_in_sec;
-                cout << "process a call: arrival_instant_in_sec:" << GeneratedCALL_Q.top().arrival_instant_in_sec << " arrival_instant_in_TS:" << GeneratedCALL_Q.top().arrival_instant_in_TS << "  capacity:" << GeneratedCALL_Q.top().capacity << "  duration:" << GeneratedCALL_Q.top().duration << "  AR-options:";
+                /*cout << "process a call: arrival_instant_in_sec:" << GeneratedCALL_Q.top().arrival_instant_in_sec << " arrival_instant_in_TS:" << GeneratedCALL_Q.top().arrival_instant_in_TS << "  capacity:" << GeneratedCALL_Q.top().capacity << "  duration:" << GeneratedCALL_Q.top().duration << "  AR-options:";
                 
                 for (int i = 0; i < GeneratedCALL_Q.top().AR_vec.size(); i++) {
                     cout << GeneratedCALL_Q.top().AR_vec[i] << " ";
                 }
                 cout << " fromAS:" << GeneratedCALL_Q.top().from_AS << "  fromNode:" << GeneratedCALL_Q.top().from_node << "  ToAS:" << GeneratedCALL_Q.top().to_AS << "  toNode:" << GeneratedCALL_Q.top().to_node << endl <<endl;
-                
+                */
                 //check if it is an Inter AS or Intra AS call
                  if(GeneratedCALL_Q.top().from_AS == GeneratedCALL_Q.top().to_AS)
                 {
                      //call IPCE module
                      result=ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].executeIntraCall(GeneratedCALL_Q.top());
                     
-                     myfile << GeneratedCALL_Q.top().isUSST << " " << result << " " << GeneratedCALL_Q.top().from_AS << "\n";
+                     //myfile << GeneratedCALL_Q.top().isUSST << " " << result << " " << GeneratedCALL_Q.top().from_AS << " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.selectedOptionIndex<< " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathLength << " " <<arrRate <<"\n";
+                     myfile <<  result << " " << GeneratedCALL_Q.top().from_AS << " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.selectedOptionIndex<< " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathLength << " " <<arrRate <<"\n";
                      
                  }else{
                      //call EPCE module and generate Inter_AS_call
