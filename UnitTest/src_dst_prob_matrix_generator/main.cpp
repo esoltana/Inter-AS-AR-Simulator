@@ -14,7 +14,7 @@ using namespace std;
  */
 int main(int argc, char** argv) {
  
-    Src_Dst_Matrix_Generator(9);
+    Src_Dst_Matrix_Generator(1);
     
         return 0;
 }

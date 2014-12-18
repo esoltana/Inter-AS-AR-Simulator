@@ -31,9 +31,9 @@ Src_Dst_Matrix_Generator::Src_Dst_Matrix_Generator(int ASnum) {
         nodeNum[i-1]=read_ASfile(asfile);
     }
     
-    writeFile_TwoLevel("1-two_level_src_dst_prob_matrix", nodeNum);
+   //writeFile_TwoLevel("1-two_level_src_dst_prob_matrix", nodeNum);
    writeFile_completelyUniform("2-completelyUniform_src_dst_prob_matrix", nodeNum);
-   writeFile_IntraDomainCalls("3-IntraDomainCalls_src_dst_prob_matrix", nodeNum);
+   //writeFile_IntraDomainCalls("3-IntraDomainCalls_src_dst_prob_matrix", nodeNum);
 }
 
 int Src_Dst_Matrix_Generator::read_ASfile(string dir){
@@ -44,6 +44,8 @@ int Src_Dst_Matrix_Generator::read_ASfile(string dir){
     if (inf.is_open()) {
     
        string line;
+       getline(inf, line);
+       getline(inf, line);
        getline(inf, line);
        getline(inf, line);
        cout << "Line: "<<line << endl;

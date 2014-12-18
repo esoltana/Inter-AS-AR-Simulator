@@ -45,13 +45,23 @@ Initializer::Initializer(int arrRate) {
     //A data structure to keep delay
     DelayStruc Delays(num_of_ASes);
     
+    
     //read the delays of different Inter AS links
     readDelayFile(Delays);
     
-    
+    //these lines should be removed for multiple ASes
+    //make an ARServer instance for each AS
+    ARserver ARServer = ARserver(1, AR_TimeWindow_size, lead_time,single_TimeSlot_size,topology_path);
+        
+        
+    //save nodeNume in the array
+    nodeNum[0]=ARServer.numOfNodes;
+        
+       //Add the AR server to the related vector
+    ARSERVER_vector.push_back(ARServer);
     
     //Create the required modules for each AS (ARServer which includes: Scheduler, ARBGP, IPCE and EPCE) for each AS
-    for (int AS_ID= 1; AS_ID <= num_of_ASes; AS_ID++) {
+    /*for (int AS_ID= 1; AS_ID <= num_of_ASes; AS_ID++) {
         
         //TODO: lead_time value is not correct, why multiply by 60
         //make an ARServer instance for each AS
@@ -64,6 +74,7 @@ Initializer::Initializer(int arrRate) {
        //Add the AR server to the related vector
         ARSERVER_vector.push_back(ARServer);
     }
+     */
 
    
     simulateMsgPassing(Delays, nodeNum, arrRate);
@@ -106,8 +117,6 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[],int arrRat
     myfile.open("callOutput.txt", ios::app);
     //main loop
     //until the request time is within simulation time continue
-    
-    
     while (current_time <= simulation_time) {
         
         //Variables for saving the earliest time of ARBGP calls and ARSchedule
