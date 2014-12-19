@@ -250,6 +250,7 @@ void CallGenerator::generateCall(double callQ_arrival_time){
     for (int i = 0; i < total_node; i++)
     {
         probvec[i] = probMatrix[thisindex][i];
+        
     }
     
     
@@ -258,7 +259,7 @@ void CallGenerator::generateCall(double callQ_arrival_time){
     for (int i = 0; i < total_node; i++)
     {
         candvec[i] = (double) i;
-
+        
     }
 
     
@@ -269,8 +270,11 @@ void CallGenerator::generateCall(double callQ_arrival_time){
         //TODO: How does exactly this function work?
         //produce a random dest AS and dest nodeNum in index format
         tmpindex = (int) rand_prob_vector(candvec, probvec, total_node);
+        
         //convert the produced index to the corresponding dest_AS and Dest_Node
         mapNode(tmpindex);
+        //cout << tmpindex <<" " << total_node <<" " <<dest_node <<" " << dest_AS<<endl;
+        
     /*} else   //intra-domain
     {
         //for intra domain the Dest_AS is within this AS and equals asnum
@@ -300,11 +304,12 @@ void CallGenerator::generateCall(double callQ_arrival_time){
             //if the AR vector is not empty produce one ARoption randomely which is not equal to the last inserted element in ARvec
             if (ARvec.size() != 0) {
                 do {
-                    ARoption = rand() % (windowsizeTimeslot)+ arrival_timeslot + leadtime;
+                    //TODO: this line is changed to make sure that the call is completely within this window size
+                    ARoption = rand() % (windowsizeTimeslot-leadtime-(Duration/slot_length))+ arrival_timeslot + leadtime;
                 } while (find(ARvec.begin(), ARvec.end(), ARoption) != ARvec.end());
             } else
                 //if ARvec is empty, produce a random ARoption (doesn't need to check the last element of ARvec)
-                ARoption = rand() % (windowsizeTimeslot)+ arrival_timeslot + leadtime;
+                ARoption = rand() % (windowsizeTimeslot-leadtime-(Duration/slot_length))+ arrival_timeslot + leadtime;
             //push the produced AR option into ARvec
             ARvec.push_back(ARoption);
         }

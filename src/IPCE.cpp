@@ -41,13 +41,13 @@ bool IPCE::findPathAndReserv(int source_node, int dest_node, double capacity, in
     
     intradijkstra G;
     //cout << "find path in IPCE " << endl;
-    vector <int> pathvector;
+    
     int turn=0;
     selectedOptionIndex=-1;
     pathLength=-1;
     //For The first scenario to find the first possible path
     for (int i = 0; i < ARvec.size(); i++) {
-        
+        cout <<source_node << " " << dest_node << " " << num_nodes << " " << ARvec[i] << " " << ARvec[i] + duration << " " << capacity <<endl;
         G.read(source_node, dest_node, num_nodes, intraASLinksAR, ARvec[i], ARvec[i] + duration, capacity);
  
         
@@ -62,7 +62,8 @@ bool IPCE::findPathAndReserv(int source_node, int dest_node, double capacity, in
             
             G.output();
             selectedOptionIndex=i;
-            pathLength=G.pathvector.size();
+            pathLength=G.pathvector.size()-1;
+            pathvector=G.pathvector;
             reserveCall(G.pathvector, ARvec[i], ARvec[i] + duration, capacity);
             return true;
         }
@@ -89,7 +90,7 @@ bool IPCE::findPathAndReserv(int source_node, int dest_node, double capacity, in
             {
                 pathvector=G.pathvector;
                 selectedOptionIndex=i;
-                pathLength=G.pathvector.size();
+                pathLength=G.pathvector.size()-1;
             }
             else if(pathvector.size()> G.pathvector.size())
             {   pathvector=G.pathvector;
@@ -116,13 +117,19 @@ bool IPCE::findPathAndReserv(int source_node, int dest_node, double capacity, in
 
 //TODO: check it to work correctly
 bool IPCE::reserveCall(vector<int> pathVector, int start_time, int end_time, double capacity) {
-
+    
     for (int i = 0; i < pathVector.size() - 1; i++) {
 
         for (int j = start_time; j <= end_time; j++) {
+            if(pathVector[i+1]==1000)
+            {cout << "pathV " <<pathVector.size() << " " << i <<endl;
+            
+            cout << "ver1: " <<pathVector[i]<<endl;
+            cout << "ver2: " << pathVector[i+1]<<endl;
+            }
             int vertex1 = pathVector[i];
             int vertex2 = pathVector[i+1];
-
+            
             intraASLinksAR[vertex1 * 1000 + vertex2].availableBandwidthTable[j] -= capacity;
             intraASLinksAR[vertex2 * 1000 + vertex1].availableBandwidthTable[j] -= capacity;
         }

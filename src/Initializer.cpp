@@ -33,21 +33,26 @@ using namespace std;
 
 Initializer::Initializer(int arrRate) {
     
-    
+    cout <<"1sfsdfsdf";
     readSimulationParam("InputParameters//Simulation-related-input-params");
     
     readARsystemParams();
     
    
     readNumberOfASes();
+    
+    //TODO: should be changed for multipl ASes
+    num_of_ASes=1;
+    
     int nodeNum[num_of_ASes];
 
+    
     //A data structure to keep delay
     DelayStruc Delays(num_of_ASes);
     
-    
+    //should be uncommented for multiple ASes
     //read the delays of different Inter AS links
-    readDelayFile(Delays);
+    //readDelayFile(Delays);
     
     //these lines should be removed for multiple ASes
     //make an ARServer instance for each AS
@@ -114,7 +119,9 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[],int arrRat
     int result=0;
     
     ofstream myfile;
-    myfile.open("callOutput.txt", ios::app);
+    myfile.open("callOutputBaseLine.txt", ios::app);
+    
+                     
     //main loop
     //until the request time is within simulation time continue
     while (current_time <= simulation_time) {
@@ -188,13 +195,13 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[],int arrRat
                 //accept a generated call
                 
                 current_time = GeneratedCALL_Q.top().arrival_instant_in_sec;
-                /*cout << "process a call: arrival_instant_in_sec:" << GeneratedCALL_Q.top().arrival_instant_in_sec << " arrival_instant_in_TS:" << GeneratedCALL_Q.top().arrival_instant_in_TS << "  capacity:" << GeneratedCALL_Q.top().capacity << "  duration:" << GeneratedCALL_Q.top().duration << "  AR-options:";
+                cout << "process a call: arrival_instant_in_sec:" << GeneratedCALL_Q.top().arrival_instant_in_sec << " arrival_instant_in_TS:" << GeneratedCALL_Q.top().arrival_instant_in_TS << "  capacity:" << GeneratedCALL_Q.top().capacity << "  duration:" << GeneratedCALL_Q.top().duration << "  AR-options:";
                 
                 for (int i = 0; i < GeneratedCALL_Q.top().AR_vec.size(); i++) {
                     cout << GeneratedCALL_Q.top().AR_vec[i] << " ";
                 }
                 cout << " fromAS:" << GeneratedCALL_Q.top().from_AS << "  fromNode:" << GeneratedCALL_Q.top().from_node << "  ToAS:" << GeneratedCALL_Q.top().to_AS << "  toNode:" << GeneratedCALL_Q.top().to_node << endl <<endl;
-                */
+                
                 //check if it is an Inter AS or Intra AS call
                  if(GeneratedCALL_Q.top().from_AS == GeneratedCALL_Q.top().to_AS)
                 {
@@ -202,7 +209,11 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[],int arrRat
                      result=ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].executeIntraCall(GeneratedCALL_Q.top());
                     
                      //myfile << GeneratedCALL_Q.top().isUSST << " " << result << " " << GeneratedCALL_Q.top().from_AS << " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.selectedOptionIndex<< " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathLength << " " <<arrRate <<"\n";
-                     myfile <<  result << " " << GeneratedCALL_Q.top().from_AS << " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.selectedOptionIndex<< " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathLength << " " <<arrRate <<"\n";
+                    myfile <<  result << " " << GeneratedCALL_Q.top().from_AS << " " << GeneratedCALL_Q.top().from_node << " " << GeneratedCALL_Q.top().to_node << " " << GeneratedCALL_Q.top().AR_vec[0] << " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.selectedOptionIndex<< " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathLength << " " <<arrRate << " ";
+                    
+                    for (int j = 0; j < ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathvector.size(); j++)
+                        myfile << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathvector[j] << "-";
+                     myfile <<"\n";
                      
                  }else{
                      //call EPCE module and generate Inter_AS_call

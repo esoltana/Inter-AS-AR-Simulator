@@ -29,6 +29,7 @@ public:
     bool reserveCall(vector<int> pathVector, int start_time, int end_time, double capacity);
     int selectedOptionIndex;
     int pathLength;
+    vector <int> pathvector;
 };
 
 

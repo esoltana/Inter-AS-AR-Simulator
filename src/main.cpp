@@ -12,17 +12,17 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-   /*
+   
     ofstream myfile;
-    myfile.open("callOutput.txt");
-    myfile << "Is_Success AS_Num selectedOptionIndex pathLength Arrival_Rate\n";
+    myfile.open("callOutputBaseLine.txt");
+    myfile << "Is_Success AS_Num src dest ARoption selectedOptionIndex pathLength Arrival_Rate\n";
     myfile.close();
-     */
-    for(int j=1000; j<=1000; j*=2)
-    {
-        Initializer init= Initializer(j);
-        cout << j <<endl; 
-    }
+     cout <<"first"<<endl; 
+    
+        
+        Initializer init= Initializer(50);
+        cout << "50" <<endl; 
+    
     
     return 0;
 }

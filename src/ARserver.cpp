@@ -25,7 +25,8 @@ ARserver::ARserver(int AS_num, int AR_TimeWindow_size, int lead_time, int single
     AS_ID=AS_num;
 
     readIntraTopology(topology_path);
-    readInterLinks(topology_path);
+    //TODO: should be uncommented for multi ASes
+    //readInterLinks(topology_path);
     
     //TODO: should modify them if needed. is not complete yet
     AR_BGP_module= ARBGP();
