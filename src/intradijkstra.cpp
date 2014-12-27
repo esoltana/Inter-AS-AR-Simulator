@@ -28,6 +28,24 @@ void intradijkstra::initialize() {
     distance[source] = 0;
 }
 
+
+int intradijkstra::checkAvailability( map<int, linkAvailableBandwithTable>& intraLinks, int startTimeSlot, int endTimeSlot, double capacity)
+{
+    int f=0;
+    for (int j = 0; j < pathvector.size()-1; j++) {
+        
+        for (int k = startTimeSlot; k < endTimeSlot; k++) {
+
+            if (intraLinks[pathvector[j]*1000+pathvector[j+1]].availableBandwidthTable[k] < capacity) {
+
+                f=1;
+                break;
+            }
+
+        }
+    }
+    return f;
+}
 /*
  * Input: starting: the starting node number; ending: the ending node number; edgedata: the reference of a map of EdgeTable, please see DataStructures.h to understand the data structure of edgedata object, 
  * generally speaking this is a data structure for each edge in the intra-domain topology with advance reservation window integrated; start: the starting time slot; end: the ending time slot; capacity: the requested capacity(Gbps)
@@ -37,6 +55,30 @@ void intradijkstra::initialize() {
  * on certain edges(links) is less than capacity, then the value will also be set to INFINITY.
  * The matrix is used for computing a valid shortest path by using Dijkstra algorithm
  */
+void intradijkstra::readForShortest(int starting, int ending, int numNode, map<int, linkAvailableBandwithTable>& intraLinks, int startTimeSlot, int endTimeSlot, double capacity) {
+    //TODO: the size of the matrix should be equal to number of nodes, not a fix value
+    for (int i = 0; i < MAX; i++) {
+        for (int j = 0; j < MAX; j++) {
+            adjMatrix[i][j] = INFINITY;
+        }
+    }
+
+    numOfNodes = numNode;
+    for (std::map<int, linkAvailableBandwithTable>::iterator iter = intraLinks.begin(); iter != intraLinks.end(); ++iter) {
+        int from_node = iter->first / 1000;
+        int to_node = iter->first % 1000;
+       
+
+        w=iter->second.weight;
+        adjMatrix[from_node-1][to_node-1] = w;
+        
+    }
+        
+    source = starting-1;
+    dest = ending-1;
+   
+}
+
 void intradijkstra::read(int starting, int ending, int numNode, map<int, linkAvailableBandwithTable>& intraLinks, int startTimeSlot, int endTimeSlot, double capacity) {
     //TODO: the size of the matrix should be equal to number of nodes, not a fix value
     for (int i = 0; i < MAX; i++) {
@@ -70,7 +112,6 @@ void intradijkstra::read(int starting, int ending, int numNode, map<int, linkAva
     dest = ending-1;
    
 }
-
 
 /*
  * called by other inner functions
@@ -114,9 +155,9 @@ void intradijkstra::calculateDistance() {
         count++;
     }
     
-     pathvector.clear();
+    pathvector.clear();
     constructPath(dest);
-   
+            
 }
 
 /*
@@ -127,9 +168,10 @@ void intradijkstra::constructPath(int node) {
     if (node == source) {
         
         pathvector.push_back(node);
+
         flag = 1;
     } else if (predecessor[node] == -1) {
-        cout << "No path from " << source+1 << "to" << node+1 << endl;
+        //cout << "No path from " << source+1 << "to" << node+1 << endl;
         flag = 0;
     } else {
 
@@ -146,10 +188,11 @@ void intradijkstra::output() {
 
     for (int j = 0; j < pathvector.size(); j++)
         pathvector[j]+=1;
-    cout << "path:";
+    /*cout << "path:";
     for (int j = 0; j < pathvector.size(); j++)
         cout << pathvector[j] << "--";
     cout << "->distance:" << distance[dest] << endl;
+     */ 
 }
 
 

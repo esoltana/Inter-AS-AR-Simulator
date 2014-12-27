@@ -1,5 +1,5 @@
 //USST parameter: rate(Gbps) duration(minutes) AR_options call_fraction
-USST 1 60 1 1
+USST 1 60 3 1
 //EST parameter: rate(Gbps) duration_min(minutes) duration_max(minutes) AR_options call_fraction zipf_alpha
 EST 10 1 60 3 0 0.8
 //Arrival rate

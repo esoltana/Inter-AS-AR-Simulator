@@ -25,7 +25,9 @@ public:
     void readTopology(vector<Intra_Link> intra_links);
     bool findPathAndReserv(int source_vertex, int dest_vertex, double capacity, int duration, vector<int> ARvec);
     bool findsinglePathR(int source_vertex, int dest_vertex, double capacity_rate, int duration, int AR_time);
-    bool findsinglePathAndReserv(int source_vertex, int dest_vertex, double capacity, int duration, int AR_time);
+    bool findPathShortestEarliestAndReserv(int source_vertex, int dest_vertex, double capacity, int duration, vector<int> ARvec);
+    bool findPathMulShortestPossibleAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec);
+    bool findPathPossibleShortEarliestAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec);
     bool reserveCall(vector<int> pathVector, int start_time, int end_time, double capacity);
     int selectedOptionIndex;
     int pathLength;

@@ -14,15 +14,24 @@ using namespace std;
 int main(int argc, char* argv[]) {
    
     ofstream myfile;
-    myfile.open("callOutputBaseLine.txt");
-    myfile << "Is_Success AS_Num src dest ARoption selectedOptionIndex pathLength Arrival_Rate\n";
+    myfile.open("Output-files/Out-ShortestPossible-multiple-m20k24.txt");
+    myfile << "Is_Success AS_Num src dest ARoption selectedOptionIndex pathLength Arrival_Rate path\n";
     myfile.close();
-     cout <<"first"<<endl; 
     
-        
-        Initializer init= Initializer(50);
-        cout << "50" <<endl; 
+    ofstream results;
+    results.open("Output-files/Results-ShortestPossible-multiple-m20k24.txt");
+    results << "ARrate CBP avgLength FirstARperc SecondARperc ThirdARperc " << endl;
+    results.close();
     
+    
+    cout << "ARrate CBP avgLength FirstARperc SecondARperc ThirdARperc " << endl;
+    
+     
+    for( int i=0; i<16; i++)
+    {
+        Initializer init= Initializer(50+i*10);
+        //cout << 90+i*5 <<endl; 
+    }
     
     return 0;
 }

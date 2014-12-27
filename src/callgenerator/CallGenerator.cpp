@@ -305,11 +305,11 @@ void CallGenerator::generateCall(double callQ_arrival_time){
             if (ARvec.size() != 0) {
                 do {
                     //TODO: this line is changed to make sure that the call is completely within this window size
-                    ARoption = rand() % (windowsizeTimeslot-leadtime-(Duration/slot_length))+ arrival_timeslot + leadtime;
+                    ARoption = rand() % (windowsizeTimeslot-leadtime-Duration)+ arrival_timeslot + leadtime;
                 } while (find(ARvec.begin(), ARvec.end(), ARoption) != ARvec.end());
             } else
                 //if ARvec is empty, produce a random ARoption (doesn't need to check the last element of ARvec)
-                ARoption = rand() % (windowsizeTimeslot-leadtime-(Duration/slot_length))+ arrival_timeslot + leadtime;
+                ARoption = rand() % (windowsizeTimeslot-leadtime-Duration)+ arrival_timeslot + leadtime;
             //push the produced AR option into ARvec
             ARvec.push_back(ARoption);
         }
