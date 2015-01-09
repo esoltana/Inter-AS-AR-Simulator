@@ -18,7 +18,17 @@ IPCE::IPCE(int reservationWindowSize, int lead_time, int numNode) {
     num_nodes=numNode;
 }
 
-
+void IPCE::slideWindow(vector<Intra_Link> intra_links)
+{
+   
+    for (int i = 0; i < intraASLinksAR.size(); i++) {
+        int node1 = intra_links[i].start_node;
+        int node2 = intra_links[i].end_node;
+        //create an index based on start and end nodes
+        int index = node1 * 1000 + node2;
+        intraASLinksAR[index].signaling();
+ }   
+}
 //construct a new table which keeps available bandwidth of each link in different time slotes
 void IPCE::readTopology(vector<Intra_Link> intra_links) {
     //for each entry of intra_links table
@@ -36,7 +46,7 @@ void IPCE::readTopology(vector<Intra_Link> intra_links) {
     }
 }
 
-bool IPCE::findPathMulShortestPossibleAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec) {
+bool IPCE::USSTfindPathMulShortestPossibleAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec) {
     
     intradijkstra G;
     //cout << "find path in IPCE " << endl;
@@ -47,17 +57,12 @@ bool IPCE::findPathMulShortestPossibleAndReserv(int source_node, int dest_node, 
     for (int i = 0; i < ARvec.size(); i++) {
         
         G.read(source_node, dest_node, num_nodes, intraASLinksAR, ARvec[i], ARvec[i] + duration, capacity);
- 
-        
         G.calculateDistance();
-        
-
         //check if a path is found
         if (G.flag == 0)
             //no path between these two nodes
             continue;
         else {
-            
             G.output();
             turn++;
             if(turn==1)
@@ -71,7 +76,6 @@ bool IPCE::findPathMulShortestPossibleAndReserv(int source_node, int dest_node, 
                 selectedOptionIndex=i;
                 pathLength=G.pathvector.size();
             }
-            
         }
     }
     if(selectedOptionIndex!=-1)
@@ -80,10 +84,9 @@ bool IPCE::findPathMulShortestPossibleAndReserv(int source_node, int dest_node, 
         return true;
     }else
         return false;
-
 }
 
-bool IPCE::findPathShortestEarliestAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec) {
+bool IPCE::USSTfindPathShortestEarliestAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec) {
     
     intradijkstra G;
     //cout << "find path in IPCE " << endl;
@@ -95,12 +98,7 @@ bool IPCE::findPathShortestEarliestAndReserv(int source_node, int dest_node, dou
     for (int i = 0; i < ARvec.size(); i++) {
         //cout <<source_node << " " << dest_node << " " << num_nodes << " " << ARvec[i] << " " << ARvec[i] + duration << " " << capacity <<endl;
         G.readForShortest(source_node, dest_node, num_nodes, intraASLinksAR, ARvec[i], ARvec[i] + duration, capacity);
- 
-        
         G.calculateDistance();
-        
-        
-                
         //check if a path is found
         if (G.flag == 0)
             //no path between these two nodes
@@ -111,7 +109,6 @@ bool IPCE::findPathShortestEarliestAndReserv(int source_node, int dest_node, dou
                 G.flag==0;
             else
             {
-                
                 selectedOptionIndex=i;
                 pathLength=G.pathvector.size()-1;
                 pathvector=G.pathvector;
@@ -124,7 +121,7 @@ bool IPCE::findPathShortestEarliestAndReserv(int source_node, int dest_node, dou
 }
 
 
-bool IPCE::findPathPossibleShortEarliestAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec) {
+bool IPCE::USSTfindPathPossibleShortEarliestAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec) {
     
     intradijkstra G;
     //cout << "find path in IPCE " << endl;
@@ -136,29 +133,54 @@ bool IPCE::findPathPossibleShortEarliestAndReserv(int source_node, int dest_node
     for (int i = 0; i < ARvec.size(); i++) {
         //cout <<source_node << " " << dest_node << " " << num_nodes << " " << ARvec[i] << " " << ARvec[i] + duration << " " << capacity <<endl;
         G.read(source_node, dest_node, num_nodes, intraASLinksAR, ARvec[i], ARvec[i] + duration, capacity);
- 
-        
         G.calculateDistance();
-                
         //check if a path is found
         if (G.flag == 0)
             //no path between these two nodes
             continue;
         else {
             G.output();
-                            
             selectedOptionIndex=i;
             pathLength=G.pathvector.size()-1;
             pathvector=G.pathvector;
             reserveCall(G.pathvector, ARvec[i], ARvec[i] + duration, capacity);
             return true;
-            
         }
     }
     return false;
 }
 
 
+bool IPCE::ESTfindPathPossibleShortEarliestAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec) {
+    
+    intradijkstra G;
+    //cout << "find path in IPCE " << endl;
+    pathvector.clear();
+    int turn=0;
+    selectedOptionIndex=-1;
+    pathLength=-1;
+    int start_TS=ARvec[0];
+    int end_TS=ARvec[1];
+    //For The first scenario to find the first possible path
+    for (int i = start_TS; i <= end_TS; i++) {
+        //cout <<source_node << " " << dest_node << " " << num_nodes << " " << ARvec[i] << " " << ARvec[i] + duration << " " << capacity <<endl;
+        G.read(source_node, dest_node, num_nodes, intraASLinksAR, i, i + duration, capacity);
+        G.calculateDistance();
+        //check if a path is found
+        if (G.flag == 0)
+            //no path between these two nodes
+            continue;
+        else {
+            G.output();
+            selectedOptionIndex=i-start_TS;
+            pathLength=G.pathvector.size()-1;
+            pathvector=G.pathvector;
+            reserveCall(G.pathvector, i, i + duration, capacity);
+            return true;
+        }
+    } 
+    return false;
+}
 //TODO: Capacity for the transmission rate of a link bps
 //TODO: "Rate" for rate requested for the call bps
 

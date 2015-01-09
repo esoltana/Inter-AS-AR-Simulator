@@ -226,8 +226,14 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[],int arrRat
                         
                     }
                      //myfile << GeneratedCALL_Q.top().isUSST << " " << result << " " << GeneratedCALL_Q.top().from_AS << " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.selectedOptionIndex<< " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathLength << " " <<arrRate <<"\n";
-                    myfile <<  result << " " << GeneratedCALL_Q.top().from_AS << " " << GeneratedCALL_Q.top().from_node << " " << GeneratedCALL_Q.top().to_node << " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.selectedOptionIndex<< " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathLength << " " <<arrRate << " ";
+                    myfile <<  result << " " << GeneratedCALL_Q.top().from_AS << " " << GeneratedCALL_Q.top().from_node << " " << GeneratedCALL_Q.top().to_node << " " << GeneratedCALL_Q.top().isUSST <<" ";
                     
+                    myfile <<  " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.selectedOptionIndex<< " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathLength << " " <<arrRate << " ";
+                    
+                    for (int j = 0; j < GeneratedCALL_Q.top().AR_vec.size(); j++)
+                        myfile << GeneratedCALL_Q.top().AR_vec[j] << ",";
+                            
+                    myfile << " ";
                     for (int j = 0; j < ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathvector.size(); j++)
                         myfile << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathvector[j] << "-";
                      myfile <<"\n";

@@ -18,6 +18,7 @@ using namespace std;
 
 ARserver::ARserver(int AS_num, int AR_TimeWindow_size, int lead_time, int single_TimeSlot_size, string topology_path)
 {
+    currentTimeSlot=0;
     ARWindow_timeSlot=AR_TimeWindow_size/single_TimeSlot_size;
  
     ARleadtime = lead_time;
@@ -173,18 +174,23 @@ int ARserver::executeIntraCall(Call_Node IntraCallNode)
 {
     int result=0;
     //cout << "  execute Intra call in AR Server: " << IntraCallNode.from_AS << " to: " << IntraCallNode.to_AS << endl;
-    
-        if(IPCE_module.findPathMulShortestPossibleAndReserv(IntraCallNode.from_node,IntraCallNode.to_node,IntraCallNode.capacity,IntraCallNode.duration,IntraCallNode.AR_vec))
+    if(IntraCallNode.arrival_instant_in_TS>currentTimeSlot)
+    {
+        
+        for(int i=0; i< (IntraCallNode.arrival_instant_in_TS-currentTimeSlot); i++)
         {
-            result=1;
-            //cout<<"One reservation made!"<<endl<<endl;
-        } 
-        else
-        {
-            result=0;
-            //cout << "no reservation" <<endl << endl ;
-
+            IPCE_module.slideWindow(topology.Intra_Links_table);
         }
+    }
+     
+    vector<int> AR;
+    for(int i=0; i<IntraCallNode.AR_vec.size(); i++)
+        AR.push_back(IntraCallNode.AR_vec[i]-IntraCallNode.arrival_instant_in_TS);
+    if(IntraCallNode.isUSST==1)
+        result=IPCE_module.USSTfindPathPossibleShortEarliestAndReserv(IntraCallNode.from_node,IntraCallNode.to_node,IntraCallNode.capacity,IntraCallNode.duration,AR);
+    else
+        result=IPCE_module.ESTfindPathPossibleShortEarliestAndReserv(IntraCallNode.from_node,IntraCallNode.to_node,IntraCallNode.capacity,IntraCallNode.duration,AR);
+    
     return result;
 }
 

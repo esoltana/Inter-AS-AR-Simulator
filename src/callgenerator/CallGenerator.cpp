@@ -325,10 +325,26 @@ void CallGenerator::generateCall(double callQ_arrival_time){
         //produce the duration value according to zipf distribution
         Duration = (zipf(zipf_alpha, (ESTduration_max - ESTduration_min)) + ESTduration_min)*60 / slot_length;
         //push the sequential AR options based on the number of ESTn
+        
+        
+        //TODO: modified, produce two AR option randomly to show the start and end of scheduling window
         for (int i = 0; i < ESTn; i++) {
-            //TODO: now the nearest time slots are selected, but the other kind of startTimes like one-other should be checked
-            ARvec.push_back(arrival_timeslot+leadtime + i); 
+            int ARoption = 0;
+            //if the AR vector is not empty produce one ARoption randomely which is not equal to the last inserted element in ARvec
+            if (ARvec.size() != 0) {
+                do {
+                    //TODO: this line is changed to make sure that the call is completely within this window size
+                    ARoption = rand() % (windowsizeTimeslot-leadtime-Duration)+ arrival_timeslot + leadtime;
+                } while (find(ARvec.begin(), ARvec.end(), ARoption) != ARvec.end());
+            } else
+                //if ARvec is empty, produce a random ARoption (doesn't need to check the last element of ARvec)
+                ARoption = rand() % (windowsizeTimeslot-leadtime-Duration)+ arrival_timeslot + leadtime;
+            //push the produced AR option into ARvec
+            ARvec.push_back(ARoption);
         }
+        //sort the AR options in increasing order
+        sort(ARvec.begin(), ARvec.end());
+        
     } else
         cout << "USST EST selection error!" << endl;
 

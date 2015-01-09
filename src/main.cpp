@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
    
     ofstream myfile;
     myfile.open("Output-files/Out-ShortestPossible-multiple-m20k24.txt");
-    myfile << "Is_Success AS_Num src dest ARoption selectedOptionIndex pathLength Arrival_Rate path\n";
+    myfile << "Is_Success AS_Num src dest isUSST selectedOptionIndex pathLength Arrival_Rate ARoption path\n";
     myfile.close();
     
     ofstream results;
@@ -27,7 +27,8 @@ int main(int argc, char* argv[]) {
     cout << "ARrate CBP avgLength FirstARperc SecondARperc ThirdARperc " << endl;
     
      
-    for( int i=0; i<16; i++)
+    //for( int i=0; i<16; i++)
+    for( int i=0; i<1; i++)
     {
         Initializer init= Initializer(50+i*10);
         //cout << 90+i*5 <<endl; 

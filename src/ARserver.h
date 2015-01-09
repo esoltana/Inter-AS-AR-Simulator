@@ -35,6 +35,7 @@ private:
         int AS_ID;
 	int ARWindow_timeSlot, ARleadtime;
         int timeSlotSize;
+        int currentTimeSlot;
 };
 
 
