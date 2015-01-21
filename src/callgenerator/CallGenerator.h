@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 
+
 using namespace std;
 
 class CallGenerator{
@@ -13,6 +14,8 @@ public:
     void readCommonFile(string path);
     void readprobMatrix(string path);
 
+    
+    
     /*call generation related parameters */
     double arrival_rate;
     double arrival_time;
@@ -28,6 +31,7 @@ public:
     //keep the rate of USST and EST 
     double Capacity;
     
+    double ESTcap_ack;
     int isUSST;
     
 private:
@@ -49,7 +53,7 @@ private:
     //read from the file (rate value)
     double USSTcap, ESTcap;
     
-    int USSTduration, ESTduration_min, ESTduration_max;
+    double USSTduration, ESTduration_min, ESTduration_max;
     //read number of AR_options from the file
     int USSTn, ESTn;
     double zipf_alpha;

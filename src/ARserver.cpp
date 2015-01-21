@@ -11,7 +11,6 @@
 #include <iostream>
 #include "DataStructures.h"
 #include "IPCE.h"
-#include "readcall.h"
 #include "ARserver.h" 
 using namespace std;
 
@@ -174,22 +173,30 @@ int ARserver::executeIntraCall(Call_Node IntraCallNode)
 {
     int result=0;
     //cout << "  execute Intra call in AR Server: " << IntraCallNode.from_AS << " to: " << IntraCallNode.to_AS << endl;
+   // cout << IntraCallNode.arrival_instant_in_TS << " " << currentTimeSlot<< endl;
+
     if(IntraCallNode.arrival_instant_in_TS>currentTimeSlot)
     {
         
         for(int i=0; i< (IntraCallNode.arrival_instant_in_TS-currentTimeSlot); i++)
         {
             IPCE_module.slideWindow(topology.Intra_Links_table);
+        
         }
+        currentTimeSlot=IntraCallNode.arrival_instant_in_TS;
+        
     }
-     
+    
     vector<int> AR;
     for(int i=0; i<IntraCallNode.AR_vec.size(); i++)
-        AR.push_back(IntraCallNode.AR_vec[i]-IntraCallNode.arrival_instant_in_TS);
+    {
+        int x=IntraCallNode.AR_vec[i]-IntraCallNode.arrival_instant_in_TS;
+        AR.push_back(x);
+    }
     if(IntraCallNode.isUSST==1)
         result=IPCE_module.USSTfindPathPossibleShortEarliestAndReserv(IntraCallNode.from_node,IntraCallNode.to_node,IntraCallNode.capacity,IntraCallNode.duration,AR);
     else
-        result=IPCE_module.ESTfindPathPossibleShortEarliestAndReserv(IntraCallNode.from_node,IntraCallNode.to_node,IntraCallNode.capacity,IntraCallNode.duration,AR);
+        result=IPCE_module.ESTfindPathPossibleShortEarliestAndReserv(IntraCallNode.from_node,IntraCallNode.to_node,IntraCallNode.capacity,IntraCallNode.duration,AR, IntraCallNode.cap_return);
     
     return result;
 }

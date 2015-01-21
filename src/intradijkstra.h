@@ -7,7 +7,7 @@
 
 #ifndef INTRADIJKSTRA_H
 #define	INTRADIJKSTRA_H
-#define MAX 30
+#define MAX 40
 //#include "p.h"
 #include<vector>
 #include<map>
@@ -32,6 +32,8 @@ class intradijkstra{
        // void recreate(int start,map<int,EdgeTable>& edgedata, int allcount,int end, int capacity);
         int checkAvailability( map<int, linkAvailableBandwithTable>& intraLinks, int startTimeSlot, int endTimeSlot, double capacity);
         void readForShortest(int starting, int ending, int numNode, map<int, linkAvailableBandwithTable>& intraLinks, int startTimeSlot, int endTimeSlot, double capacity);
+        void checkDirectionUSST();
+        void checkDirectionEST();
     /*
     * Function read() reads No of vertices, Adjacency Matrix and source
     * Matrix from the user. The number of vertices must be greather than
@@ -41,6 +43,7 @@ class intradijkstra{
  
     */
         void read(int starting,int ending, int vnum, map<int,linkAvailableBandwithTable>& edgedata, int start, int end, double capacity);
+        void readEST(int starting,int ending, int vnum, map<int,linkAvailableBandwithTable>& edgedata, int start, int end, double capacity, double cap_return);
         
  
     /*

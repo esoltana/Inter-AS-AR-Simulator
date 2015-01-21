@@ -28,8 +28,9 @@ public:
     bool USSTfindPathShortestEarliestAndReserv(int source_vertex, int dest_vertex, double capacity, int duration, vector<int> ARvec);
     bool USSTfindPathMulShortestPossibleAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec);
     bool USSTfindPathPossibleShortEarliestAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec);
-    bool ESTfindPathPossibleShortEarliestAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec);
-    bool reserveCall(vector<int> pathVector, int start_time, int end_time, double capacity);
+    bool ESTfindPathPossibleShortEarliestAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec, double cap_return);
+    bool reserveCallUSST(vector<int> pathVector, int start_time, int end_time, double capacity);
+    bool reserveCallEST(vector<int> pathVector, int start_time, int end_time, double capacity, double cap_return);
     int selectedOptionIndex;
     int pathLength;
     void slideWindow(vector<Intra_Link> intra_links);

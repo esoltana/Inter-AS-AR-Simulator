@@ -79,6 +79,7 @@ public:
     double signaling() {
         
         //double theReturnBand = availableBandwidthTable.front();
+        
         availableBandwidthTable.erase(availableBandwidthTable.begin());
         availableBandwidthTable.push_back(bandwidth);
         //return theReturnBand;
@@ -86,7 +87,7 @@ public:
     void printResTable()  {
         for(int i = 0; i < availableBandwidthTable.size(); i++)
         {
-            cout<<availableBandwidthTable[i]<<" ";
+            //cout<<availableBandwidthTable[i]<<" ";
         }
         cout<<endl;
     }
@@ -377,6 +378,7 @@ struct Inter_AS_Call_Node {
     vector<int> AR_vector;
     int next_AS;
     double capacity;
+    ;
     int duration;
     Inter_AS_Call_Node * next_node = NULL;
         Inter_AS_Call_Node()
@@ -507,6 +509,7 @@ struct Call_Node{
     int to_node;
     int duration;
     double capacity;
+    double cap_return=0;
     int isUSST;
 };
 

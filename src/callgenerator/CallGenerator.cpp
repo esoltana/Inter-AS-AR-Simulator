@@ -18,7 +18,7 @@
 using namespace std;
 
 CallGenerator::CallGenerator(int AS_ID,int window_size_sec, int lead_time, int slotlength) {
-    
+    srand ( time(NULL) );
     windowsizeTimeslot=window_size_sec/slotlength;
     leadtime=lead_time;
     slot_length=slotlength;
@@ -82,7 +82,7 @@ void CallGenerator::readCommonFile(string path)
                     lineStream >> USSTcap >> USSTduration >> USSTn >> USST_EST_prob[0];
                    
                 } else if (indicator == "EST") {
-                    lineStream >> ESTcap >> ESTduration_min >> ESTduration_max >> ESTn >> USST_EST_prob[1] >> zipf_alpha;
+                    lineStream >> ESTcap >> ESTcap_ack >>ESTduration_min >> ESTduration_max >> ESTn >> USST_EST_prob[1] >> zipf_alpha;
                 } else {
                     cout <<  "Read Common file error!" << endl;
                 }
@@ -226,6 +226,7 @@ void CallGenerator::generateCall(double callQ_arrival_time){
     //calQ_arrival_time is zero for new generated calls
     arrival_time= expon(arrival_rate) + callQ_arrival_time;
     arrival_timeslot=arrival_time/slot_length;
+    int randSeed=1;
     
     if (ARvec.size() != 0)
         ARvec.clear();
@@ -250,21 +251,15 @@ void CallGenerator::generateCall(double callQ_arrival_time){
     for (int i = 0; i < total_node; i++)
     {
         probvec[i] = probMatrix[thisindex][i];
-        
     }
-    
     
     //save the ASindex in the array to use it for producing random value for which AS to be Dest AS
     double candvec[total_node];
     for (int i = 0; i < total_node; i++)
     {
         candvec[i] = (double) i;
-        
     }
-
-    
     int tmpindex;
-    
     //inter-domain
     //if (flag == 0) {
         //TODO: How does exactly this function work?
@@ -288,7 +283,7 @@ void CallGenerator::generateCall(double callQ_arrival_time){
     
     //whether it's a USST call or EST call
     double indicator = rand_prob_vector(USST_EST, USST_EST_prob, 2);
-
+    
     //USST
     if (indicator == 1.0) {
         isUSST=1;
@@ -305,11 +300,12 @@ void CallGenerator::generateCall(double callQ_arrival_time){
             if (ARvec.size() != 0) {
                 do {
                     //TODO: this line is changed to make sure that the call is completely within this window size
-                    ARoption = rand() % (windowsizeTimeslot-leadtime-Duration)+ arrival_timeslot + leadtime;
+                    ARoption = rand() % (windowsizeTimeslot-leadtime-Duration+1)+ arrival_timeslot + leadtime;
                 } while (find(ARvec.begin(), ARvec.end(), ARoption) != ARvec.end());
             } else
                 //if ARvec is empty, produce a random ARoption (doesn't need to check the last element of ARvec)
-                ARoption = rand() % (windowsizeTimeslot-leadtime-Duration)+ arrival_timeslot + leadtime;
+                ARoption = rand() % (windowsizeTimeslot-leadtime-Duration+1)+ arrival_timeslot + leadtime;
+        
             //push the produced AR option into ARvec
             ARvec.push_back(ARoption);
         }
@@ -334,13 +330,14 @@ void CallGenerator::generateCall(double callQ_arrival_time){
             if (ARvec.size() != 0) {
                 do {
                     //TODO: this line is changed to make sure that the call is completely within this window size
-                    ARoption = rand() % (windowsizeTimeslot-leadtime-Duration)+ arrival_timeslot + leadtime;
+                    ARoption = rand() % (windowsizeTimeslot-leadtime-Duration+1)+ arrival_timeslot + leadtime;
                 } while (find(ARvec.begin(), ARvec.end(), ARoption) != ARvec.end());
             } else
                 //if ARvec is empty, produce a random ARoption (doesn't need to check the last element of ARvec)
-                ARoption = rand() % (windowsizeTimeslot-leadtime-Duration)+ arrival_timeslot + leadtime;
+                ARoption = rand() % (windowsizeTimeslot-leadtime-Duration+1)+ arrival_timeslot + leadtime;
             //push the produced AR option into ARvec
             ARvec.push_back(ARoption);
+           
         }
         //sort the AR options in increasing order
         sort(ARvec.begin(), ARvec.end());

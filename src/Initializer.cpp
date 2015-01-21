@@ -21,8 +21,10 @@
 #include <iostream>
 #include "DataStructures.h"
 #include "ARserver.h"
-#include "readcall.h"
 #include "randgen/randgen.h"
+
+#include <cstdlib>
+#include <iomanip>
 
 #define TIMETAG 1
 #define BGPTAG 2
@@ -31,7 +33,7 @@
 
 using namespace std;
 
-Initializer::Initializer(int arrRate) {
+Initializer::Initializer(int arrRate, int simulationTime) {
     
     
     readSimulationParam("InputParameters//Simulation-related-input-params");
@@ -82,13 +84,13 @@ Initializer::Initializer(int arrRate) {
      */
 
    
-    simulateMsgPassing(Delays, nodeNum, arrRate);
+    simulateMsgPassing(Delays, nodeNum, arrRate, simulationTime);
     
     
     
 }
 
-void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[],int arrRate)
+void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[],int arrRate, int simulationTime)
 {
     //create vector of call generators
     for (int i = 1; i <= num_of_ASes; i++) {
@@ -119,12 +121,14 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[],int arrRat
     int result=0;
     
     ofstream myfile;
-    myfile.open("Output-files/Out-ShortestPossible-multiple-m20k24.txt", ios::app);
+    //myfile.open("Output-files/1-USST-singleLink-oneOption.txt", ios::app);
+    myfile.open("Output-files/Output-USST-EST.txt", ios::app);
     
+    simulation_time=simulationTime;
                      
     //main loop
     //until the request time is within simulation time continue
-    double callNumber=0, blockedNum=0, pathLength=0, firstAR=0, secondAR=0, thirdAR=0, selectedOption=0;
+    double callNumberUSST=0, callNumberEST=0, callNumber=0, blockedUSST=0, blockedEST=0, pathLengthEST=0, pathLengthUSST=0, firstAR=0, secondAR=0, thirdAR=0, selectedOption=0, meanWaitingEST=0;
     while (current_time <= simulation_time) {
         
         //Variables for saving the earliest time of ARBGP calls and ARSchedule
@@ -174,21 +178,13 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[],int arrRat
             case 2:
             {
                 //do Inter AS Call
-                
-                
                 //TODO: should be completed for EPCE calls to be accepted 
-                
                 //update the current time to the current executing call
                 current_time = Inter_AS_call_Q.top().arrival_instance_in_sec;
                 
                 //cout << "process an Inter AS call: " ;
                 
-                
-                
                 Inter_AS_call_Q.pop();
-                
-                
-                 
                 break;
             }
             case 3:
@@ -196,7 +192,7 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[],int arrRat
                 //accept a generated call
                 
                 current_time = GeneratedCALL_Q.top().arrival_instant_in_sec;
-                /*cout << "process a call: arrival_instant_in_sec:" << GeneratedCALL_Q.top().arrival_instant_in_sec << " arrival_instant_in_TS:" << GeneratedCALL_Q.top().arrival_instant_in_TS << "  capacity:" << GeneratedCALL_Q.top().capacity << "  duration:" << GeneratedCALL_Q.top().duration << "  AR-options:";
+                /*cout << "process a call: arrival_instant_in_sec:" << GeneratedCALL_Q.top().arrival_instant_in_sec << " arrival_instant_in_TS:" << GeneratedCALL_Q.top().arrival_instant_in_TS << "  capacity:" << GeneratedCALL_Q.top().capacity << " " << GeneratedCALL_Q.top().cap_return << " duration:" << GeneratedCALL_Q.top().duration << "  AR-options:";
                 
                 for (int i = 0; i < GeneratedCALL_Q.top().AR_vec.size(); i++) {
                     cout << GeneratedCALL_Q.top().AR_vec[i] << " ";
@@ -207,37 +203,78 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[],int arrRat
                 //check if it is an Inter AS or Intra AS call
                  if(GeneratedCALL_Q.top().from_AS == GeneratedCALL_Q.top().to_AS)
                 {
-                     //call IPCE module
+                    //call IPCE module
                     result=ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].executeIntraCall(GeneratedCALL_Q.top());
                     callNumber++;
+                    
                     if(result==0)
-                        blockedNum++;
+                    {
+                        if(GeneratedCALL_Q.top().isUSST==1)
+                        {
+                            blockedUSST++;
+                            callNumberUSST++;
+                        }
+                        else if(GeneratedCALL_Q.top().isUSST==2)
+                        {
+                            blockedEST++;
+                            callNumberEST++;
+                        }
+                    }
                     else
                     {
-                        pathLength+= ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathLength;
-                        selectedOption=ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.selectedOptionIndex;
-                        if(selectedOption==0)
-                            firstAR++;
-                        else if(selectedOption==1)
-                            secondAR++;
-                        else if(selectedOption==2)
-                            thirdAR++;
-                            
+                        if(GeneratedCALL_Q.top().isUSST==1)
+                        {
+                            callNumberUSST++;
+                            pathLengthUSST+= ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathLength;
+                            selectedOption=ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.selectedOptionIndex;
+                        
+                            if(selectedOption==0)
+                                firstAR++;
+                            else if(selectedOption==1)
+                                secondAR++;
+                            else if(selectedOption==2)
+                                thirdAR++;
+                        }else if (GeneratedCALL_Q.top().isUSST==2)
+                        {
+                            callNumberEST++;
+                            pathLengthEST+= ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathLength;
+                            selectedOption=ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.selectedOptionIndex;
+                            meanWaitingEST+=(selectedOption-GeneratedCALL_Q.top().AR_vec[0]);
+                        }
                         
                     }
-                     //myfile << GeneratedCALL_Q.top().isUSST << " " << result << " " << GeneratedCALL_Q.top().from_AS << " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.selectedOptionIndex<< " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathLength << " " <<arrRate <<"\n";
-                    myfile <<  result << " " << GeneratedCALL_Q.top().from_AS << " " << GeneratedCALL_Q.top().from_node << " " << GeneratedCALL_Q.top().to_node << " " << GeneratedCALL_Q.top().isUSST <<" ";
                     
-                    myfile <<  " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.selectedOptionIndex<< " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathLength << " " <<arrRate << " ";
                     
+                    
+                     //writing into file for code verification
+                    //myfile << left << setw(10) << GeneratedCALL_Q.top().arrival_instant_in_sec << setw(8) << GeneratedCALL_Q.top().arrival_instant_in_TS << setw(8) << result << setw(8) << GeneratedCALL_Q.top().isUSST << setw(5) << GeneratedCALL_Q.top().from_node << setw(6) << GeneratedCALL_Q.top().to_node << setw(5) << GeneratedCALL_Q.top().duration << setw(6) << GeneratedCALL_Q.top().capacity;
+                    myfile << GeneratedCALL_Q.top().arrival_instant_in_sec << " " << GeneratedCALL_Q.top().arrival_instant_in_TS << " " << result << " " << GeneratedCALL_Q.top().isUSST << " " << GeneratedCALL_Q.top().from_node << " " << GeneratedCALL_Q.top().to_node << " " << GeneratedCALL_Q.top().duration << " " << GeneratedCALL_Q.top().capacity<< " ";
+                    int f=1;
                     for (int j = 0; j < GeneratedCALL_Q.top().AR_vec.size(); j++)
-                        myfile << GeneratedCALL_Q.top().AR_vec[j] << ",";
+                    {
+                        if(f){
+                        myfile << GeneratedCALL_Q.top().AR_vec[j];
+                        f=0;
+                        }else
+                            myfile << "," <<GeneratedCALL_Q.top().AR_vec[j];
+                    }
                             
-                    myfile << " ";
+                    
+                    myfile << " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.selectedOptionIndex << " " << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathLength <<" " ;
+                    int first=1;
                     for (int j = 0; j < ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathvector.size(); j++)
-                        myfile << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathvector[j] << "-";
-                     myfile <<"\n";
-                     
+                    {
+                        if(first)
+                        {
+                            myfile << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathvector[j];
+                            first=0;
+                        }
+                        else
+                            myfile << "-" << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathvector[j];
+                    }
+                    
+                    myfile <<"\n";
+                    
                  }else{
                      //call EPCE module and generate Inter_AS_call
                     
@@ -273,6 +310,7 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[],int arrRat
                 tmp.to_node = CallGenerator_vector[GeneratedCALL_Q.top().from_AS-1].dest_node;
                 tmp.duration = CallGenerator_vector[GeneratedCALL_Q.top().from_AS-1].Duration;
                 tmp.capacity = CallGenerator_vector[GeneratedCALL_Q.top().from_AS-1].Capacity;
+                tmp.cap_return=CallGenerator_vector[GeneratedCALL_Q.top().from_AS-1].ESTcap_ack;
                 for (int j = 0; j < CallGenerator_vector[GeneratedCALL_Q.top().from_AS-1].ARvec.size(); j++)
                     tmp.AR_vec.push_back(CallGenerator_vector[GeneratedCALL_Q.top().from_AS-1].ARvec[j]);
                 GeneratedCALL_Q.pop();
@@ -298,17 +336,23 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[],int arrRat
 
     }
     myfile.close();
+
     ofstream results;
-    results.open("Output-files/Results-ShortestPossible-multiple-m20k24.txt", ios::app);
-    double CBP= 0;
-    CBP=blockedNum/callNumber*100;
-    double successNum=callNumber-blockedNum;
-    double avgpathLength=pathLength/successNum;
-    double firstPerc=firstAR/successNum*100;
-    double secondPerc=secondAR/successNum*100;
-    double thirdPerc=thirdAR/successNum*100;
-    cout << arrRate << " " << CBP<< " " << avgpathLength << " " << firstPerc << " " << secondPerc << " " << thirdPerc << " " <<endl;
-    results << arrRate << " " << CBP<< " " << avgpathLength << " " << firstPerc << " " << secondPerc << " " << thirdPerc << " " <<endl;
+    results.open("Output-files/Results-USST-EST.txt", ios::app);
+    
+    //double CBP=blockedNum/callNumber*100;
+    double successNumUSST=callNumberUSST-blockedUSST;
+    double successNumEST=callNumberEST-blockedEST;
+    double avgpathLengthUSST=pathLengthUSST/successNumUSST;
+    double avgpathLengthEST=pathLengthEST/successNumEST;
+    double meanWait=meanWaitingEST/successNumEST;
+    double max_link_Util=0;
+    //should define max link utlization.
+    //double firstPerc=firstAR/successNum*100;
+    //double secondPerc=secondAR/successNum*100;
+    //double thirdPerc=thirdAR/successNum*100;
+    //cout << arrRate << " " << CBP<< " " << avgpathLength << " " << firstPerc << " " << secondPerc << " " << thirdPerc << " " <<endl;
+    results << arrRate << " " << max_link_Util<< " " << callNumber << " " << callNumberUSST<< " " << callNumberEST << " " << blockedUSST <<" " << blockedEST <<" " << firstAR << " " << secondAR << " " << thirdAR << " " <<meanWait<<" " << avgpathLengthUSST << " " << avgpathLengthEST<<endl;
     results.close();
 }
 
@@ -332,6 +376,7 @@ void Initializer::generateFirstRoundCalls()
         tmp.to_node = CallGenerator_vector[i].dest_node;
         tmp.duration = CallGenerator_vector[i].Duration;
         tmp.capacity = CallGenerator_vector[i].Capacity;
+        tmp.cap_return=CallGenerator_vector[i].ESTcap_ack;
         //also save the AR options in the queue
         for (int j = 0; j < CallGenerator_vector[i].ARvec.size(); j++)
             tmp.AR_vec.push_back(CallGenerator_vector[i].ARvec[j]);

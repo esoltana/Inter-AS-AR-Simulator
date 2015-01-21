@@ -42,8 +42,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/callgenerator/CallGenerator.o \
 	${OBJECTDIR}/intradijkstra.o \
 	${OBJECTDIR}/main.o \
-	${OBJECTDIR}/randgen/randgen.o \
-	${OBJECTDIR}/readcall.o
+	${OBJECTDIR}/randgen/randgen.o
 
 
 # C Compiler Flags
@@ -109,11 +108,6 @@ ${OBJECTDIR}/randgen/randgen.o: randgen/randgen.c
 	${MKDIR} -p ${OBJECTDIR}/randgen
 	${RM} "$@.d"
 	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/randgen/randgen.o randgen/randgen.c
-
-${OBJECTDIR}/readcall.o: readcall.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/readcall.o readcall.cpp
 
 # Subprojects
 .build-subprojects:

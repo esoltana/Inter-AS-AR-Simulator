@@ -1,0 +1,2 @@
+Arrival_rate maxlinkU numCall numOfUSST numOfEST USSTblocked ESTblocked FirstUSST secUSST thirdUSST waitEST avgLeUSST avgLeEST
+10 0 1024 690 334 74 10 375 136 105 91.1728 3.43506 3.5679

@@ -29,6 +29,9 @@ void IPCE::slideWindow(vector<Intra_Link> intra_links)
         intraASLinksAR[index].signaling();
  }   
 }
+
+
+
 //construct a new table which keeps available bandwidth of each link in different time slotes
 void IPCE::readTopology(vector<Intra_Link> intra_links) {
     //for each entry of intra_links table
@@ -80,7 +83,7 @@ bool IPCE::USSTfindPathMulShortestPossibleAndReserv(int source_node, int dest_no
     }
     if(selectedOptionIndex!=-1)
     {
-        reserveCall(pathvector, ARvec[selectedOptionIndex], ARvec[selectedOptionIndex] + duration, capacity);
+        reserveCallUSST(pathvector, ARvec[selectedOptionIndex], ARvec[selectedOptionIndex] + duration, capacity);
         return true;
     }else
         return false;
@@ -112,7 +115,7 @@ bool IPCE::USSTfindPathShortestEarliestAndReserv(int source_node, int dest_node,
                 selectedOptionIndex=i;
                 pathLength=G.pathvector.size()-1;
                 pathvector=G.pathvector;
-                reserveCall(G.pathvector, ARvec[i], ARvec[i] + duration, capacity);
+                reserveCallUSST(G.pathvector, ARvec[i], ARvec[i] + duration, capacity);
                 return true;
             }
         }
@@ -133,6 +136,7 @@ bool IPCE::USSTfindPathPossibleShortEarliestAndReserv(int source_node, int dest_
     for (int i = 0; i < ARvec.size(); i++) {
         //cout <<source_node << " " << dest_node << " " << num_nodes << " " << ARvec[i] << " " << ARvec[i] + duration << " " << capacity <<endl;
         G.read(source_node, dest_node, num_nodes, intraASLinksAR, ARvec[i], ARvec[i] + duration, capacity);
+        G.checkDirectionUSST();
         G.calculateDistance();
         //check if a path is found
         if (G.flag == 0)
@@ -143,7 +147,7 @@ bool IPCE::USSTfindPathPossibleShortEarliestAndReserv(int source_node, int dest_
             selectedOptionIndex=i;
             pathLength=G.pathvector.size()-1;
             pathvector=G.pathvector;
-            reserveCall(G.pathvector, ARvec[i], ARvec[i] + duration, capacity);
+            reserveCallUSST(G.pathvector, ARvec[i], ARvec[i] + duration, capacity);
             return true;
         }
     }
@@ -151,7 +155,7 @@ bool IPCE::USSTfindPathPossibleShortEarliestAndReserv(int source_node, int dest_
 }
 
 
-bool IPCE::ESTfindPathPossibleShortEarliestAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec) {
+bool IPCE::ESTfindPathPossibleShortEarliestAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec, double cap_return) {
     
     intradijkstra G;
     //cout << "find path in IPCE " << endl;
@@ -164,7 +168,8 @@ bool IPCE::ESTfindPathPossibleShortEarliestAndReserv(int source_node, int dest_n
     //For The first scenario to find the first possible path
     for (int i = start_TS; i <= end_TS; i++) {
         //cout <<source_node << " " << dest_node << " " << num_nodes << " " << ARvec[i] << " " << ARvec[i] + duration << " " << capacity <<endl;
-        G.read(source_node, dest_node, num_nodes, intraASLinksAR, i, i + duration, capacity);
+        G.readEST(source_node, dest_node, num_nodes, intraASLinksAR, i, i + duration, capacity, cap_return);
+        G.checkDirectionEST();
         G.calculateDistance();
         //check if a path is found
         if (G.flag == 0)
@@ -172,10 +177,12 @@ bool IPCE::ESTfindPathPossibleShortEarliestAndReserv(int source_node, int dest_n
             continue;
         else {
             G.output();
-            selectedOptionIndex=i-start_TS;
+            
+            selectedOptionIndex=i;
+            //cout << start_TS <<" " << i <<" "<< selectedOptionIndex<<endl;
             pathLength=G.pathvector.size()-1;
             pathvector=G.pathvector;
-            reserveCall(G.pathvector, i, i + duration, capacity);
+            reserveCallEST(G.pathvector, i, i + duration, capacity, cap_return);
             return true;
         }
     } 
@@ -186,11 +193,11 @@ bool IPCE::ESTfindPathPossibleShortEarliestAndReserv(int source_node, int dest_n
 
 
 //TODO: check it to work correctly
-bool IPCE::reserveCall(vector<int> pathVector, int start_time, int end_time, double capacity) {
+bool IPCE::reserveCallUSST(vector<int> pathVector, int start_time, int end_time, double capacity) {
     
     for (int i = 0; i < pathVector.size() - 1; i++) {
 
-        for (int j = start_time; j <= end_time; j++) {
+        for (int j = start_time; j < end_time; j++) {
             /*if(pathVector[i+1]==1000)
             {cout << "pathV " <<pathVector.size() << " " << i <<endl;
             
@@ -209,5 +216,26 @@ bool IPCE::reserveCall(vector<int> pathVector, int start_time, int end_time, dou
 }
 
 
+bool IPCE::reserveCallEST(vector<int> pathVector, int start_time, int end_time, double capacity, double cap_return) {
+    
+    for (int i = 0; i < pathVector.size() - 1; i++) {
+
+        for (int j = start_time; j < end_time; j++) {
+            /*if(pathVector[i+1]==1000)
+            {cout << "pathV " <<pathVector.size() << " " << i <<endl;
+            
+            cout << "ver1: " <<pathVector[i]<<endl;
+            cout << "ver2: " << pathVector[i+1]<<endl;
+            }
+             */
+            int vertex1 = pathVector[i];
+            int vertex2 = pathVector[i+1];
+            
+            intraASLinksAR[vertex1 * 1000 + vertex2].availableBandwidthTable[j] -= capacity;
+            intraASLinksAR[vertex2 * 1000 + vertex1].availableBandwidthTable[j] -= cap_return;
+        }
+    }
+
+}
 
 

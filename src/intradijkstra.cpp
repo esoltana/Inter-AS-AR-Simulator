@@ -46,6 +46,35 @@ int intradijkstra::checkAvailability( map<int, linkAvailableBandwithTable>& intr
     }
     return f;
 }
+
+
+
+void intradijkstra::checkDirectionUSST()
+{
+    for (int i = 0; i < MAX; i++) {
+        for (int j = 0; j < MAX; j++) {
+            if(adjMatrix[i][j] == INFINITY)
+                adjMatrix[j][i]=INFINITY;
+        }
+    }
+}
+
+void intradijkstra::checkDirectionEST()
+{
+    for (int i = 0; i < MAX; i++) {
+        for (int j = 0; j < MAX; j++) {
+            if(adjMatrix[i][j] == INFINITY)
+                adjMatrix[j][i]=INFINITY;
+            else if(adjMatrix[i][j] == 100)
+            {
+                if(adjMatrix[j][i]<100)
+                    adjMatrix[i][j] = adjMatrix[j][i];
+                else
+                    adjMatrix[i][j] = INFINITY;
+            }
+        }
+    }
+}
 /*
  * Input: starting: the starting node number; ending: the ending node number; edgedata: the reference of a map of EdgeTable, please see DataStructures.h to understand the data structure of edgedata object, 
  * generally speaking this is a data structure for each edge in the intra-domain topology with advance reservation window integrated; start: the starting time slot; end: the ending time slot; capacity: the requested capacity(Gbps)
@@ -62,7 +91,6 @@ void intradijkstra::readForShortest(int starting, int ending, int numNode, map<i
             adjMatrix[i][j] = INFINITY;
         }
     }
-
     numOfNodes = numNode;
     for (std::map<int, linkAvailableBandwithTable>::iterator iter = intraLinks.begin(); iter != intraLinks.end(); ++iter) {
         int from_node = iter->first / 1000;
@@ -86,37 +114,65 @@ void intradijkstra::read(int starting, int ending, int numNode, map<int, linkAva
             adjMatrix[i][j] = INFINITY;
         }
     }
-
     numOfNodes = numNode;
     for (std::map<int, linkAvailableBandwithTable>::iterator iter = intraLinks.begin(); iter != intraLinks.end(); ++iter) {
         int from_node = iter->first / 1000;
         int to_node = iter->first % 1000;
-       
 
         w=iter->second.weight;
 
         for (int k = startTimeSlot; k < endTimeSlot; k++) {
-
             if (iter->second.availableBandwidthTable[k] < capacity) {
-
                 w = INFINITY;
                 break;
             }
-
         }
         adjMatrix[from_node-1][to_node-1] = w;
-        
     }
-        
     source = starting-1;
     dest = ending-1;
-   
 }
+
+
+void intradijkstra::readEST(int starting, int ending, int numNode, map<int, linkAvailableBandwithTable>& intraLinks, int startTimeSlot, int endTimeSlot, double capacity, double cap_return) {
+    //TODO: the size of the matrix should be equal to number of nodes, not a fix value
+    for (int i = 0; i < MAX; i++) {
+        for (int j = 0; j < MAX; j++) {
+            adjMatrix[i][j] = INFINITY;
+        }
+    }
+    numOfNodes = numNode;
+    for (std::map<int, linkAvailableBandwithTable>::iterator iter = intraLinks.begin(); iter != intraLinks.end(); ++iter) {
+        int from_node = iter->first / 1000;
+        int to_node = iter->first % 1000;
+
+        w=iter->second.weight;
+
+        for (int k = startTimeSlot; k < endTimeSlot; k++) {
+            if (iter->second.availableBandwidthTable[k] < cap_return) {
+                    w = INFINITY;
+                    break;
+            }
+        }
+        if(w!=INFINITY)  
+        {
+            for (int k = startTimeSlot; k < endTimeSlot; k++) {
+               if (iter->second.availableBandwidthTable[k] < capacity) {
+                    w = 100;
+                    break;
+                }
+            }
+        }
+        adjMatrix[from_node-1][to_node-1] = w;
+    }
+    source = starting-1;
+    dest = ending-1;
+}
+
 
 /*
  * called by other inner functions
  */
-
 int intradijkstra::getClosestUnmarkedNode() {
     int minDistance = INFINITY;
     int closestUnmarkedNode;

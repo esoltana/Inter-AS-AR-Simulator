@@ -12,7 +12,6 @@
       <itemPath>Initializer.h</itemPath>
       <itemPath>intradijkstra.h</itemPath>
       <itemPath>randgen/randgen.h</itemPath>
-      <itemPath>readcall.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
@@ -29,7 +28,6 @@
       <itemPath>intradijkstra.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
       <itemPath>randgen/randgen.c</itemPath>
-      <itemPath>readcall.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"
@@ -85,10 +83,6 @@
       </item>
       <item path="randgen/randgen.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="readcall.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="readcall.h" ex="false" tool="3" flavor2="0">
-      </item>
     </conf>
     <conf name="Release" type="1">
       <toolsSet>
@@ -141,10 +135,6 @@
       <item path="randgen/randgen.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="randgen/randgen.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="readcall.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="readcall.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>

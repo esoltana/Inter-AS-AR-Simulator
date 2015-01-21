@@ -1,2 +1,0 @@
-ARrate CBP avgLength FirstARperc SecondARperc ThirdARperc 
-50 0.584795 2.62157 84.3137 2.54902 0.196078 

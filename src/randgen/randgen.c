@@ -99,9 +99,9 @@ int zipf(double alpha, int n)
       break;
     }
   }
-
+  
   // Assert that zipf_value is between 1 and N
-  assert((zipf_value >=1) && (zipf_value <= n));
+  assert((zipf_value >=0) && (zipf_value <= n));
 
   return(zipf_value);
 }
