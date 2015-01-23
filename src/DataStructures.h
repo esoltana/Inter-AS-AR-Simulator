@@ -509,7 +509,7 @@ struct Call_Node{
     int to_node;
     int duration;
     double capacity;
-    double cap_return=0;
+    double cap_return;
     int isUSST;
 };
 

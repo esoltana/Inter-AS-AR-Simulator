@@ -14,12 +14,12 @@ using namespace std;
 
 class Initializer {
 public:
-    Initializer(int arrRate, int simulationTime);
+    Initializer(int arrRate, int simulationTime, string filename);
     void readSimulationParam(string path);
     void readARsystemParams();
     void readNumberOfASes();
     void readDelayFile(DelayStruc Delays);
-    void simulateMsgPassing(DelayStruc Delays,int nodeNum[], int arrRate, int simulationTime);
+    void simulateMsgPassing(int nodeNum[], int arrRate, int simulationTime, string filename);
     
     void generateFirstRoundCalls();
     

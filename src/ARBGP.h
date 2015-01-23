@@ -40,7 +40,7 @@ public:
 	string update_message;
 	map <Node,vector<NLRI>,NodeCompare > RIB;
         map <int,vector<NLRI> > RIB_out;
-        double threshold_capacity = 0.7;
+        double threshold_capacity;
 	map <int,MCN> MCNlist;
 private:
 

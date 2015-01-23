@@ -169,6 +169,7 @@ void ARserver::readInterLinks(string topology_path)
     }
 }
 
+
 int ARserver::executeIntraCall(Call_Node IntraCallNode)
 {
     int result=0;
@@ -177,14 +178,11 @@ int ARserver::executeIntraCall(Call_Node IntraCallNode)
 
     if(IntraCallNode.arrival_instant_in_TS>currentTimeSlot)
     {
-        
         for(int i=0; i< (IntraCallNode.arrival_instant_in_TS-currentTimeSlot); i++)
         {
             IPCE_module.slideWindow(topology.Intra_Links_table);
-        
         }
         currentTimeSlot=IntraCallNode.arrival_instant_in_TS;
-        
     }
     
     vector<int> AR;

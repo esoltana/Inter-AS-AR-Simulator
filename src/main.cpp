@@ -9,14 +9,13 @@
 
 #include "Initializer.h"
 #include <fstream>
+#include <sstream>
 using namespace std;
+
 
 int main(int argc, char* argv[]) {
    
-    ofstream myfile;
-    myfile.open("Output-files/Output-USST-EST.txt");
-    myfile << "Arr_rate Arr_Time  arr_TS  is_acc  is_USST src  dest  dur  rate  ARopt  selectedOp  pathLen  path\n";
-    myfile.close();
+    
     
     ofstream results;
     results.open("Output-files/Results-USST-EST.txt");
@@ -39,27 +38,43 @@ int main(int argc, char* argv[]) {
     myfile << "Arr_Time  arr_TS  is_acc  src  dest  dur  rate  ARopt  selectedOp  pathLen  path"<< endl;
     */
 
-    double simulTime=0, arrate=0;
+    double simulTime=0, arrate=1;
     
     
         //TODO: arrival_rate and simulation_Time should be defined in a way to calculate 10000 calls
+    /*
     arrate=0.05;
-    simulTime=10000/arrate;
-    Initializer init= Initializer(arrate, simulTime);
+    simulTime=100/arrate;
+    Initializer(arrate, simulTime);
 
     arrate=0.1;
-    simulTime=10000/arrate;
-    Initializer init= Initializer(arrate, simulTime);
+    simulTime=100/arrate;
+    Initializer(arrate, simulTime);
+    */
+    ofstream myfile;
+    myfile.open("Output-files/Output-USST-EST0.txt");
+    myfile << "Arr_rate Arr_Time  arr_TS  is_acc  is_USST src  dest  dur  rate  ARopt  selectedOp  pathLen  path\n";
+    myfile.close();
     
     arrate=1;
-    simulTime=10000/arrate;
-    Initializer init= Initializer(arrate, simulTime);
+    simulTime=1000/arrate;
+    string filename ="Output-files/Output-USST-EST0.txt";
+    Initializer(arrate, simulTime,filename);
     
     for( int i=1; i<7; i++)
     {
+        ofstream results;
+        stringstream ss;
+        ss << "Output-files/Output-USST-EST" <<i <<".txt";
+        filename=ss.str();
+                      
+        ofstream myfile;
+        myfile.open(filename.c_str());
+        myfile << "Arr_rate Arr_Time  arr_TS  is_acc  is_USST src  dest  dur  rate  ARopt  selectedOp  pathLen  path\n";
+        myfile.close();
         arrate=i*10;
-        simulTime=10000/arrate;
-        Initializer init= Initializer(arrate, simulTime);
+        simulTime=1000/arrate;
+        Initializer(arrate, simulTime,filename);
     }
     
     return 0;

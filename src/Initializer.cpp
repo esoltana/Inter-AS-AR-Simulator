@@ -33,7 +33,7 @@
 
 using namespace std;
 
-Initializer::Initializer(int arrRate, int simulationTime) {
+Initializer::Initializer(int arrRate, int simulationTime, string filename) {
     
     
     readSimulationParam("InputParameters//Simulation-related-input-params");
@@ -84,13 +84,13 @@ Initializer::Initializer(int arrRate, int simulationTime) {
      */
 
    
-    simulateMsgPassing(Delays, nodeNum, arrRate, simulationTime);
+    simulateMsgPassing(nodeNum, arrRate, simulationTime,filename);
     
     
     
 }
 
-void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[],int arrRate, int simulationTime)
+void Initializer::simulateMsgPassing(int nodeNum[],int arrRate, int simulationTime,string filename)
 {
     //create vector of call generators
     for (int i = 1; i <= num_of_ASes; i++) {
@@ -122,7 +122,8 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[],int arrRat
     
     ofstream myfile;
     //myfile.open("Output-files/1-USST-singleLink-oneOption.txt", ios::app);
-    myfile.open("Output-files/Output-USST-EST.txt", ios::app);
+    myfile.open(filename.c_str(), ios::app);
+    
     
     simulation_time=simulationTime;
                      
@@ -238,7 +239,7 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[],int arrRat
                         {
                             callNumberEST++;
                             pathLengthEST+= ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathLength;
-                            selectedOption=ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.selectedOptionIndex;
+                            selectedOption=ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.selectedOptionIndex+GeneratedCALL_Q.top().arrival_instant_in_TS;
                             meanWaitingEST+=(selectedOption-GeneratedCALL_Q.top().AR_vec[0]);
                         }
                         
@@ -331,7 +332,7 @@ void Initializer::simulateMsgPassing(DelayStruc Delays, int nodeNum[],int arrRat
                 for (int i = 0; i < ARSERVER_vector.size(); i++) {
                     //ARSERVER_vector[i].AR_BGP_module.sendUpdate(current_time, ARBGP_Q, Delays,AR_TimeWindow_size,ARSERVER_vector[i].IPCE_module );
                 }
-                break;
+            break;
         }
 
     }
