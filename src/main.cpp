@@ -57,11 +57,11 @@ int main(int argc, char* argv[]) {
     myfile.close();
     
     arrate=1;
-    simulTime=1000/arrate;
+    simulTime=100000/arrate;
     string filename ="Output-files/Output-USST-EST0.txt";
     Initializer(arrate, simulTime,filename);
     
-    for( int i=1; i<7; i++)
+    for( int i=2; i<10; i++)
     {
         ofstream results;
         stringstream ss;
@@ -72,8 +72,8 @@ int main(int argc, char* argv[]) {
         myfile.open(filename.c_str());
         myfile << "Arr_rate Arr_Time  arr_TS  is_acc  is_USST src  dest  dur  rate  ARopt  selectedOp  pathLen  path\n";
         myfile.close();
-        arrate=i*10;
-        simulTime=1000/arrate;
+        arrate=i;
+        simulTime=100000/arrate;
         Initializer(arrate, simulTime,filename);
     }
     

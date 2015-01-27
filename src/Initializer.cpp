@@ -348,12 +348,13 @@ void Initializer::simulateMsgPassing(int nodeNum[],int arrRate, int simulationTi
     double avgpathLengthEST=pathLengthEST/successNumEST;
     double meanWait=meanWaitingEST/successNumEST;
     double max_link_Util=0;
+    double CBP= blockedUSST/callNumberUSST;
     //should define max link utlization.
     //double firstPerc=firstAR/successNum*100;
     //double secondPerc=secondAR/successNum*100;
     //double thirdPerc=thirdAR/successNum*100;
     //cout << arrRate << " " << CBP<< " " << avgpathLength << " " << firstPerc << " " << secondPerc << " " << thirdPerc << " " <<endl;
-    results << arrRate << " " << max_link_Util<< " " << callNumber << " " << callNumberUSST<< " " << callNumberEST << " " << blockedUSST <<" " << blockedEST <<" " << firstAR << " " << secondAR << " " << thirdAR << " " <<meanWait<<" " << avgpathLengthUSST << " " << avgpathLengthEST<<endl;
+    results << arrRate << " " << CBP*100<< endl ;//" " << max_link_Util<< " " << callNumber << " " << callNumberUSST<< " " << callNumberEST << " " << blockedUSST <<" " << blockedEST <<" " << firstAR << " " << secondAR << " " << thirdAR << " " <<meanWait<<" " << avgpathLengthUSST << " " << avgpathLengthEST<<endl;
     results.close();
 }
 

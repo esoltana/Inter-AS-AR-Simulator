@@ -2,8 +2,8 @@
 //[Prop. delay is max of 500ms-600ms]. So assume that in 1 to 1.2 sec, round-trip Create-Reservation procedure can complete. So lead_time should be at least say 1.2 sec. So now by choosing lead-time to be 1 TS and making 1 TS equal 10 sec, we have  sufficient slack to be sure that create-reservation will have completed)
 //Now finally call arrival times are continuous variables – interpreted in seconds. And so the arrival instant is mapped to one 10-sec TS. So typical values for this AR_system_input_parameters.txt: Duration_of_timeslot_in_seconds = 10, AR_Window_in_seconds = 86400, Lead_Time_in_timeslots = 1.
 //Duration_of_timeslot_in_seconds
-10
+1
 //AR_Window_in_seconds
-86400
+2
 //Lead_Time_in_timeslots
 1
