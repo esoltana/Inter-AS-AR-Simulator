@@ -17,9 +17,10 @@
 
 using namespace std;
 
-CallGenerator::CallGenerator(int AS_ID,int window_size_sec, int lead_time, int slotlength) {
+CallGenerator::CallGenerator(int AS_ID,double window_size_sec, int lead_time, double slotlength) {
     srand ( time(NULL) );
     windowsizeTimeslot=window_size_sec/slotlength;
+
     leadtime=lead_time;
     slot_length=slotlength;
     //the index of AS

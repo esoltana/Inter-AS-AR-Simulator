@@ -10,6 +10,8 @@
 #include "Initializer.h"
 #include <fstream>
 #include <sstream>
+#include <cmath>
+#include <iomanip>
 using namespace std;
 
 
@@ -56,25 +58,50 @@ int main(int argc, char* argv[]) {
     myfile << "Arr_rate Arr_Time  arr_TS  is_acc  is_USST src  dest  dur  rate  ARopt  selectedOp  pathLen  path\n";
     myfile.close();
     
+    string filename ="Output-files/Output-USST-EST0.txt";
+    /*
     arrate=1;
     simulTime=100000/arrate;
-    string filename ="Output-files/Output-USST-EST0.txt";
-    Initializer(arrate, simulTime,filename);
     
-    for( int i=2; i<10; i++)
+    Initializer(arrate, simulTime,filename);
+    */
+    for( double i=100; i<=150000; i*=2)
     {
         ofstream results;
-        stringstream ss;
-        ss << "Output-files/Output-USST-EST" <<i <<".txt";
-        filename=ss.str();
-                      
-        ofstream myfile;
-        myfile.open(filename.c_str());
-        myfile << "Arr_rate Arr_Time  arr_TS  is_acc  is_USST src  dest  dur  rate  ARopt  selectedOp  pathLen  path\n";
-        myfile.close();
-        arrate=i;
-        simulTime=100000/arrate;
-        Initializer(arrate, simulTime,filename);
+        results.open("Output-files/Results-USST-EST.txt", ios::app);
+        results << i << " ";
+        results.close();
+        
+        for(int j=100; j<=100000; j*=2)
+        {
+            
+            stringstream ss;
+            ss << "Output-files/Output-USST-EST" <<i <<".txt";
+            filename=ss.str();
+
+            ofstream myfile;
+            myfile.open(filename.c_str());
+            myfile << "Arr_rate Arr_Time  arr_TS  is_acc  is_USST src  dest  dur  rate  ARopt  selectedOp  pathLen  path\n";
+            myfile.close();
+            arrate=i;
+            simulTime=j/arrate;
+            Initializer init=Initializer(arrate, simulTime,filename); 
+            
+            
+            
+            results.open("Output-files/Results-USST-EST.txt", ios::app);
+
+            
+            //cout << arrRate << " " << CBP<< " " << avgpathLength << " " << firstPerc << " " << secondPerc << " " << thirdPerc << " " <<endl;
+            results << fixed << setprecision(2) << init.CBP*100 << " " ;//" " << max_link_Util<< " " << callNumber << " " << callNumberUSST<< " " << callNumberEST << " " << blockedUSST <<" " << blockedEST <<" " << firstAR << " " << secondAR << " " << thirdAR << " " <<meanWait<<" " << avgpathLengthUSST << " " << avgpathLengthEST<<endl;
+            results.close();
+        }
+        
+        
+        results.open("Output-files/Results-USST-EST.txt", ios::app);
+        results << endl;
+        results.close();
+        
     }
     
     return 0;

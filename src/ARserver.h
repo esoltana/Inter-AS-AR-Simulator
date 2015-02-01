@@ -14,7 +14,7 @@ using namespace std;
 class ARserver
 {
 public:
-	ARserver(int AS_num, int AR_TimeWindow_size, int lead_time, int single_TimeSlot_size, string topology_path);
+	ARserver(int AS_num, double AR_TimeWindow_size, int lead_time, double single_TimeSlot_size, string topology_path);
         
         void readIntraTopology(string topology_path);
         void readInterLinks(string topology_path);
@@ -33,8 +33,9 @@ public:
         
 private:
         int AS_ID;
-	int ARWindow_timeSlot, ARleadtime;
-        int timeSlotSize;
+	double ARWindow_timeSlot;
+        int ARleadtime;
+        double timeSlotSize;
         int currentTimeSlot;
 };
 

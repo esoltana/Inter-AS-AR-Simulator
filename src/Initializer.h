@@ -14,12 +14,12 @@ using namespace std;
 
 class Initializer {
 public:
-    Initializer(int arrRate, int simulationTime, string filename);
+    Initializer(double arrRate, int simulationTime, string filename);
     void readSimulationParam(string path);
     void readARsystemParams();
     void readNumberOfASes();
     void readDelayFile(DelayStruc Delays);
-    void simulateMsgPassing(int nodeNum[], int arrRate, int simulationTime, string filename);
+    void simulateMsgPassing(int nodeNum[], double arrRate, int simulationTime, string filename);
     
     void generateFirstRoundCalls();
     
@@ -40,13 +40,13 @@ public:
     
     /*AR System related parameters*/
     // Duration of timeslot in second
-    int single_TimeSlot_size;
+    double single_TimeSlot_size;
     // length of AR window(seconds)
-    int AR_TimeWindow_size;
+    double AR_TimeWindow_size;
     
      //Lead time in timeslots
     int lead_time;
-
+    double CBP;
 /////////////Simulation related Variables    
      //define a vector to keep the AR servers of all the ASs
     vector<ARserver> ARSERVER_vector;

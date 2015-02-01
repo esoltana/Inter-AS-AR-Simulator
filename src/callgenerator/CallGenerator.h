@@ -6,7 +6,7 @@ using namespace std;
 
 class CallGenerator{
 public:
-    CallGenerator(int AS_ID,int window_size_sec, int lead_time, int slotlength);
+    CallGenerator(int AS_ID,double window_size_sec, int lead_time, double slotlength);
     void readNodeVector(int nodeNumArray[],  int arraySize);
     void mapNode(int index);
     int mapIndex(int AS_num, int vertex_num);
@@ -47,7 +47,7 @@ private:
     
     int windowsizeTimeslot;
     int leadtime;
-    int slot_length;
+    double slot_length;
    
     
     //read from the file (rate value)

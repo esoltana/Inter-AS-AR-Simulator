@@ -15,7 +15,7 @@
 using namespace std;
 
 
-ARserver::ARserver(int AS_num, int AR_TimeWindow_size, int lead_time, int single_TimeSlot_size, string topology_path)
+ARserver::ARserver(int AS_num, double AR_TimeWindow_size, int lead_time, double single_TimeSlot_size, string topology_path)
 {
     currentTimeSlot=0;
     ARWindow_timeSlot=AR_TimeWindow_size/single_TimeSlot_size;

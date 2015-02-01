@@ -33,7 +33,7 @@
 
 using namespace std;
 
-Initializer::Initializer(int arrRate, int simulationTime, string filename) {
+Initializer::Initializer(double arrRate, int simulationTime, string filename) {
     
     
     readSimulationParam("InputParameters//Simulation-related-input-params");
@@ -90,7 +90,7 @@ Initializer::Initializer(int arrRate, int simulationTime, string filename) {
     
 }
 
-void Initializer::simulateMsgPassing(int nodeNum[],int arrRate, int simulationTime,string filename)
+void Initializer::simulateMsgPassing(int nodeNum[],double arrRate, int simulationTime,string filename)
 {
     //create vector of call generators
     for (int i = 1; i <= num_of_ASes; i++) {
@@ -129,6 +129,7 @@ void Initializer::simulateMsgPassing(int nodeNum[],int arrRate, int simulationTi
                      
     //main loop
     //until the request time is within simulation time continue
+    
     double callNumberUSST=0, callNumberEST=0, callNumber=0, blockedUSST=0, blockedEST=0, pathLengthEST=0, pathLengthUSST=0, firstAR=0, secondAR=0, thirdAR=0, selectedOption=0, meanWaitingEST=0;
     while (current_time <= simulation_time) {
         
@@ -337,25 +338,19 @@ void Initializer::simulateMsgPassing(int nodeNum[],int arrRate, int simulationTi
 
     }
     myfile.close();
-
-    ofstream results;
-    results.open("Output-files/Results-USST-EST.txt", ios::app);
-    
-    //double CBP=blockedNum/callNumber*100;
+   
     double successNumUSST=callNumberUSST-blockedUSST;
     double successNumEST=callNumberEST-blockedEST;
     double avgpathLengthUSST=pathLengthUSST/successNumUSST;
     double avgpathLengthEST=pathLengthEST/successNumEST;
     double meanWait=meanWaitingEST/successNumEST;
     double max_link_Util=0;
-    double CBP= blockedUSST/callNumberUSST;
+    CBP= blockedUSST/callNumberUSST;
     //should define max link utlization.
     //double firstPerc=firstAR/successNum*100;
     //double secondPerc=secondAR/successNum*100;
     //double thirdPerc=thirdAR/successNum*100;
-    //cout << arrRate << " " << CBP<< " " << avgpathLength << " " << firstPerc << " " << secondPerc << " " << thirdPerc << " " <<endl;
-    results << arrRate << " " << CBP*100<< endl ;//" " << max_link_Util<< " " << callNumber << " " << callNumberUSST<< " " << callNumberEST << " " << blockedUSST <<" " << blockedEST <<" " << firstAR << " " << secondAR << " " << thirdAR << " " <<meanWait<<" " << avgpathLengthUSST << " " << avgpathLengthEST<<endl;
-    results.close();
+  
 }
 
 void Initializer::generateFirstRoundCalls()
@@ -465,12 +460,13 @@ void Initializer::readARsystemParams()
         if(index==1)
         {
              iss >> single_TimeSlot_size;
+            
              index++;
         }else if(index==2)
         {
             //TODO: may be should divided by timeslot to keep the number of time slots 
             iss >> AR_TimeWindow_size;
-           
+            
             index++;
         }else if (index==3)
         {
