@@ -65,14 +65,14 @@ int main(int argc, char* argv[]) {
     
     Initializer(arrate, simulTime,filename);
     */
-    for( double i=100; i<=150000; i*=2)
+    for( double i=0.1; i<=150; i*=2)
     {
         ofstream results;
         results.open("Output-files/Results-USST-EST.txt", ios::app);
         results << i << " ";
         results.close();
         
-        for(int j=100; j<=100000; j*=2)
+        for(int j=100000; j<=100000; j*=2)
         {
             
             stringstream ss;
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
 
             ofstream myfile;
             myfile.open(filename.c_str());
-            myfile << "Arr_rate Arr_Time  arr_TS  is_acc  is_USST src  dest  dur  rate  ARopt  selectedOp  pathLen  path\n";
+            myfile << "Arr_Time  arr_TS  is_acc  is_USST src  dest  dur  rate  ARopt  selectedOp  pathLen  path\n";
             myfile.close();
             arrate=i;
             simulTime=j/arrate;
@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
 
             
             //cout << arrRate << " " << CBP<< " " << avgpathLength << " " << firstPerc << " " << secondPerc << " " << thirdPerc << " " <<endl;
-            results << fixed << setprecision(2) << init.CBP*100 << " " ;//" " << max_link_Util<< " " << callNumber << " " << callNumberUSST<< " " << callNumberEST << " " << blockedUSST <<" " << blockedEST <<" " << firstAR << " " << secondAR << " " << thirdAR << " " <<meanWait<<" " << avgpathLengthUSST << " " << avgpathLengthEST<<endl;
+            results << fixed << setprecision(2) << init.CBP*100 << " " << init.arrivalNum[0]<< " " << init.arrivalNum[1] << " " <<init.arrivalNum[2]<< " " <<init.callNumber<< " " <<simulTime << " ";//" " << max_link_Util<< " " << callNumber << " " << callNumberUSST<< " " << callNumberEST << " " << blockedUSST <<" " << blockedEST <<" " << firstAR << " " << secondAR << " " << thirdAR << " " <<meanWait<<" " << avgpathLengthUSST << " " << avgpathLengthEST<<endl;
             results.close();
         }
         

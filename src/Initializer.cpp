@@ -126,11 +126,12 @@ void Initializer::simulateMsgPassing(int nodeNum[],double arrRate, int simulatio
     
     
     simulation_time=simulationTime;
-                     
+    
+    int p[2]={0,0};
     //main loop
     //until the request time is within simulation time continue
     
-    double callNumberUSST=0, callNumberEST=0, callNumber=0, blockedUSST=0, blockedEST=0, pathLengthEST=0, pathLengthUSST=0, firstAR=0, secondAR=0, thirdAR=0, selectedOption=0, meanWaitingEST=0;
+    double callNumberUSST=0, callNumberEST=0, blockedUSST=0, blockedEST=0, pathLengthEST=0, pathLengthUSST=0, firstAR=0, secondAR=0, thirdAR=0, selectedOption=0, meanWaitingEST=0;
     while (current_time <= simulation_time) {
         
         //Variables for saving the earliest time of ARBGP calls and ARSchedule
@@ -269,10 +270,22 @@ void Initializer::simulateMsgPassing(int nodeNum[],double arrRate, int simulatio
                         if(first)
                         {
                             myfile << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathvector[j];
+                            p[0]=ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathvector[j];
                             first=0;
                         }
                         else
+                        {
                             myfile << "-" << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathvector[j];
+                            p[1]=ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathvector[j];
+                            
+                            if((p[0]==1 && p[1]==2)||(p[0]==2 && p[1]==1))
+                                arrivalNum[0]++;
+                            else if((p[0]==1 && p[1]==3)||(p[0]==3 && p[1]==1))
+                                arrivalNum[1]++;
+                            else if((p[0]==2 && p[1]==3)||(p[0]==3 && p[1]==2))
+                                arrivalNum[2]++;
+                            p[0]=p[1];
+                        }
                     }
                     
                     myfile <<"\n";
