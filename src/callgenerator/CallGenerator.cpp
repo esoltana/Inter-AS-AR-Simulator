@@ -245,8 +245,6 @@ void CallGenerator::generateCall(double callQ_arrival_time){
     //generate an index for this node 
     int thisindex = mapIndex(asID, source_node);
     
- 
-    
     double probvec[total_node];
     //get the probability values of this specific source node (according to the row number)
     for (int i = 0; i < total_node; i++)
@@ -301,11 +299,11 @@ void CallGenerator::generateCall(double callQ_arrival_time){
             if (ARvec.size() != 0) {
                 do {
                     //TODO: this line is changed to make sure that the call is completely within this window size
-                    ARoption = rand() % (windowsizeTimeslot-leadtime-Duration+1)+ arrival_timeslot + leadtime;
+                    ARoption = rand() % (windowsizeTimeslot-leadtime-Duration)+ arrival_timeslot + leadtime+1;
                 } while (find(ARvec.begin(), ARvec.end(), ARoption) != ARvec.end());
             } else
                 //if ARvec is empty, produce a random ARoption (doesn't need to check the last element of ARvec)
-                ARoption = rand() % (windowsizeTimeslot-leadtime-Duration+1)+ arrival_timeslot + leadtime;
+                ARoption = rand() % (windowsizeTimeslot-leadtime-Duration)+ arrival_timeslot + leadtime+1;
         
             //push the produced AR option into ARvec
             ARvec.push_back(ARoption);
@@ -331,11 +329,11 @@ void CallGenerator::generateCall(double callQ_arrival_time){
             if (ARvec.size() != 0) {
                 do {
                     //TODO: this line is changed to make sure that the call is completely within this window size
-                    ARoption = rand() % (windowsizeTimeslot-leadtime-Duration+1)+ arrival_timeslot + leadtime;
+                    ARoption = rand() % (windowsizeTimeslot-leadtime-Duration)+ arrival_timeslot + leadtime+1;
                 } while (find(ARvec.begin(), ARvec.end(), ARoption) != ARvec.end());
             } else
                 //if ARvec is empty, produce a random ARoption (doesn't need to check the last element of ARvec)
-                ARoption = rand() % (windowsizeTimeslot-leadtime-Duration+1)+ arrival_timeslot + leadtime;
+                ARoption = rand() % (windowsizeTimeslot-leadtime-Duration)+ arrival_timeslot + leadtime+1;
             //push the produced AR option into ARvec
             ARvec.push_back(ARoption);
            

@@ -25,6 +25,8 @@ public:
         
         void initializeARBGP();
         
+        double calculateUtil();
+        
         TOPOLOGY topology;
 	int numOfNodes;
         
@@ -37,6 +39,7 @@ private:
         int ARleadtime;
         double timeSlotSize;
         int currentTimeSlot;
+        
 };
 
 

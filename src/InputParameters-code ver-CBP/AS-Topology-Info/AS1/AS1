@@ -1,0 +1,7 @@
+//AS Number
+1
+//number of nodes in AS
+2
+//node1 node2 link-Weight Link-Rate(Gbps) (for intra-domain links)
+1 2 1 10
+2 1 1 10

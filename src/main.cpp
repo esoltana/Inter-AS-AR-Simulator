@@ -18,10 +18,24 @@ using namespace std;
 int main(int argc, char* argv[]) {
    
     
+    string resultFilename,outputFilename;
+    stringstream ss;
+    ss << "Output-files/Output-USST-EST"<<argv[1]<<".txt";
+    outputFilename=ss.str();
+
+    stringstream sp;
+    sp << "Output-files/Result-USST-EST"<<argv[1]<<".txt";
+    resultFilename=sp.str();
+
+    ofstream myfile;
+    myfile.open(outputFilename.c_str());
+    myfile << "Arr_rate number Arr_Time  arr_TS  is_acc  is_USST src  dest  dur  rate  ARopt  selectedOp  pathLen  path\n";
+    myfile.close();
+    
     
     ofstream results;
-    results.open("Output-files/Results-USST-EST.txt");
-    results << "Arrival_rate maxlinkU numCall numOfUSST numOfEST USSTblocked ESTblocked FirstUSST secUSST thirdUSST waitEST avgLeUSST avgLeEST" << endl;
+    results.open(resultFilename.c_str());
+    results << "Arrival_rate Cnumber CBP maxlinkU numCall numOfUSST numOfEST USSTblocked ESTblocked FirstUSST secUSST thirdUSST waitEST avgLeUSST avgLeEST simulationTime" << endl;
     results.close();
     
     
@@ -39,69 +53,27 @@ int main(int argc, char* argv[]) {
     myfile << "---------------" <<endl <<endl;
     myfile << "Arr_Time  arr_TS  is_acc  src  dest  dur  rate  ARopt  selectedOp  pathLen  path"<< endl;
     */
-
+    
+   
     double simulTime=0, arrate=1;
     
-    
-        //TODO: arrival_rate and simulation_Time should be defined in a way to calculate 10000 calls
-    /*
-    arrate=0.05;
-    simulTime=100/arrate;
-    Initializer(arrate, simulTime);
-
-    arrate=0.1;
-    simulTime=100/arrate;
-    Initializer(arrate, simulTime);
-    */
-    ofstream myfile;
-    myfile.open("Output-files/Output-USST-EST0.txt");
-    myfile << "Arr_rate Arr_Time  arr_TS  is_acc  is_USST src  dest  dur  rate  ARopt  selectedOp  pathLen  path\n";
-    myfile.close();
-    
-    string filename ="Output-files/Output-USST-EST0.txt";
-    /*
-    arrate=1;
-    simulTime=100000/arrate;
-    
-    Initializer(arrate, simulTime,filename);
-    */
-    for( double i=0.1; i<=150; i*=2)
+    double rate;
+    for( double i=1; i<=15; i++)
     {
-        ofstream results;
-        results.open("Output-files/Results-USST-EST.txt", ios::app);
-        results << i << " ";
-        results.close();
-        
-        for(int j=100000; j<=100000; j*=2)
+        rate=i/3600;
+        for(int j=10; j<=1000; j*=10)
         {
-            
-            stringstream ss;
-            ss << "Output-files/Output-USST-EST" <<i <<".txt";
-            filename=ss.str();
-
-            ofstream myfile;
-            myfile.open(filename.c_str());
-            myfile << "Arr_Time  arr_TS  is_acc  is_USST src  dest  dur  rate  ARopt  selectedOp  pathLen  path\n";
-            myfile.close();
-            arrate=i;
+            arrate=rate;
             simulTime=j/arrate;
-            Initializer init=Initializer(arrate, simulTime,filename); 
-            
-            
-            
-            results.open("Output-files/Results-USST-EST.txt", ios::app);
-
-            
-            //cout << arrRate << " " << CBP<< " " << avgpathLength << " " << firstPerc << " " << secondPerc << " " << thirdPerc << " " <<endl;
-            results << fixed << setprecision(2) << init.CBP*100 << " " << init.arrivalNum[0]<< " " << init.arrivalNum[1] << " " <<init.arrivalNum[2]<< " " <<init.callNumber<< " " <<simulTime << " ";//" " << max_link_Util<< " " << callNumber << " " << callNumberUSST<< " " << callNumberEST << " " << blockedUSST <<" " << blockedEST <<" " << firstAR << " " << secondAR << " " << thirdAR << " " <<meanWait<<" " << avgpathLengthUSST << " " << avgpathLengthEST<<endl;
+            Initializer init=Initializer(arrate, simulTime,outputFilename); 
+           
+            results.open(resultFilename.c_str(), ios::app);
+            results << rate <<" " << j <<" "<< init.CBP*100 << " " << init.max_link_Util*100<< " " << init.callNumber << " " << init.callNumberUSST<< " " << init.callNumberEST << " " << init.blockedUSST <<" " << init.blockedEST <<" " << init.firstAR << " " << init.secondAR << " " << init.thirdAR << " " << init.meanWait<<" " << init.avgpathLengthUSST << " " << init.avgpathLengthEST<<" " << simulTime << endl;
             results.close();
         }
-        
-        
-        results.open("Output-files/Results-USST-EST.txt", ios::app);
-        results << endl;
-        results.close();
-        
+        //results.open(resultFilename.c_str(), ios::app);
+        //results << endl;
+        //results.close();
     }
     
     return 0;

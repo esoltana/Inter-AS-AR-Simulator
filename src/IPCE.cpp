@@ -16,18 +16,68 @@ IPCE::IPCE(int reservationWindowSize, int lead_time, int numNode) {
     windowSizeTimeslot = reservationWindowSize;
     ARleadtime = lead_time;
     num_nodes=numNode;
+        
+    timeSlotNumbers=0;
+}
+
+void IPCE::createUtilFiles(vector<Intra_Link> intra_links)
+{
+    for (int i = 0; i < intraASLinksAR.size(); i++) {
+        int node1 = intra_links[i].start_node;
+        int node2 = intra_links[i].end_node;
+        //create an index based on start and end nodes
+        
+        stringstream ss;
+        ss << "Output-files/link-util"<<node1<<node2<<".txt";
+        string Filename=ss.str();
+        ofstream results;
+        results.open(Filename.c_str());
+        results.close();
+    }
 }
 
 void IPCE::slideWindow(vector<Intra_Link> intra_links)
 {
-   
+    int linkUsage=0;
+    timeSlotNumbers++;
     for (int i = 0; i < intraASLinksAR.size(); i++) {
         int node1 = intra_links[i].start_node;
         int node2 = intra_links[i].end_node;
         //create an index based on start and end nodes
         int index = node1 * 1000 + node2;
-        intraASLinksAR[index].signaling();
- }   
+        
+        linkUsage=intraASLinksAR[index].signaling();
+        linkUsage=intraASLinksAR[index].bandwidth-linkUsage;
+        intraASLinksAR[index].avgUtil+=linkUsage;
+        /*
+        stringstream ss;
+        ss << "Output-files/link-util"<<node1<<node2<<".txt";
+        string Filename=ss.str();
+        ofstream results;
+        results.open(Filename.c_str(),ios::app);
+        results << linkUsage<<" ";
+        results.close();
+         * */
+    }   
+}
+
+double IPCE::calculateLinkUtil(vector<Intra_Link> intra_links)
+{
+    double linkUtil[intraASLinksAR.size()];
+    double result=0;
+    for (int i = 0; i < intraASLinksAR.size(); i++) {
+        int node1 = intra_links[i].start_node;
+        int node2 = intra_links[i].end_node;
+        //create an index based on start and end nodes
+        int index = node1 * 1000 + node2;
+        
+        linkUtil[i]=(intraASLinksAR[index].avgUtil)/(intraASLinksAR[index].bandwidth*timeSlotNumbers);
+        //cout << intraASLinksAR[index].avgUtil<<" "<<intraASLinksAR[index].bandwidth*timeSlotNumbers<<" "<<linkUtil[i]<<endl;
+        if(linkUtil[i]>result)
+            result=linkUtil[i];
+    }
+    cout <<"result: "<<result<<endl;
+    return result;
 }
 
 

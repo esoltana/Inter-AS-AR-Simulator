@@ -7,7 +7,7 @@
 
 #ifndef IPCE_H
 #define	IPCE_H
-
+#include <fstream>
 #include "DataStructures.h" 
 #include <map>
 
@@ -31,10 +31,17 @@ public:
     bool ESTfindPathPossibleShortEarliestAndReserv(int source_node, int dest_node, double capacity, int duration, vector<int> ARvec, double cap_return);
     bool reserveCallUSST(vector<int> pathVector, int start_time, int end_time, double capacity);
     bool reserveCallEST(vector<int> pathVector, int start_time, int end_time, double capacity, double cap_return);
+    
+    double calculateLinkUtil(vector<Intra_Link> intra_links);
+    void createUtilFiles(vector<Intra_Link> intra_links);
     int selectedOptionIndex;
     int pathLength;
     void slideWindow(vector<Intra_Link> intra_links);
     vector <int> pathvector;
+    
+    //to write link utilizations overTime
+    
+    double timeSlotNumbers;
 };
 
 

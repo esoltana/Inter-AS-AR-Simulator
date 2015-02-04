@@ -64,9 +64,11 @@ public:
     std::vector<double> availableBandwidthTable;
     double bandwidth;
     int weight;
+    double avgUtil;
     void setBandandWeight(double band, int w) { 
         bandwidth = band;
         weight=w;
+        avgUtil=0;
     }
     void constructResTable(int tableSize, int leadTime) {
         //TODO: make sure that we need to add leadTime or not
@@ -78,11 +80,11 @@ public:
     //return the first bandwidth value in the reservation table, and push back a new bandwidth value.
     double signaling() {
         
-        //double theReturnBand = availableBandwidthTable.front();
+        double theReturnBand = availableBandwidthTable.front();
         
         availableBandwidthTable.erase(availableBandwidthTable.begin());
         availableBandwidthTable.push_back(bandwidth);
-        //return theReturnBand;
+        return theReturnBand;
     }
     void printResTable()  {
         for(int i = 0; i < availableBandwidthTable.size(); i++)
@@ -107,6 +109,7 @@ typedef struct {
     int start_node, end_node;
     double bandwidth;
     int weight;
+   
 } Intra_Link;
 
 class TOPOLOGY {

@@ -46,9 +46,27 @@ public:
     
      //Lead time in timeslots
     int lead_time;
+    
+    //result parameters which used in main to write in file
     double CBP;
-    int arrivalNum[3]={0,0,0}; //0:1-2, 1:1-3, 2:2-3
-    double callNumber=0;
+    double callNumber;
+    double successNumUSST;
+    double successNumEST;
+    double avgpathLengthUSST;
+    double avgpathLengthEST;
+    double meanWait;
+    double max_link_Util;
+    double callNumberUSST;
+    double callNumberEST;
+    double blockedUSST;
+    double blockedEST;
+    double pathLengthEST;
+    double pathLengthUSST;
+    double firstAR;
+    double secondAR;
+    double thirdAR;
+    double selectedOption;
+    double meanWaitingEST;
 /////////////Simulation related Variables    
      //define a vector to keep the AR servers of all the ASs
     vector<ARserver> ARSERVER_vector;

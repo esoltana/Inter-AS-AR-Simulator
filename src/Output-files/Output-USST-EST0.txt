@@ -1,1 +1,0 @@
-Arr_rate Arr_Time  arr_TS  is_acc  is_USST src  dest  dur  rate  ARopt  selectedOp  pathLen  path

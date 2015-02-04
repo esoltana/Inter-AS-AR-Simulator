@@ -17,6 +17,9 @@ using namespace std;
 
 ARserver::ARserver(int AS_num, double AR_TimeWindow_size, int lead_time, double single_TimeSlot_size, string topology_path)
 {
+   
+   
+    
     currentTimeSlot=0;
     ARWindow_timeSlot=AR_TimeWindow_size/single_TimeSlot_size;
  
@@ -37,6 +40,7 @@ ARserver::ARserver(int AS_num, double AR_TimeWindow_size, int lead_time, double 
     //IPCE module reads intra network topology and save it in a new format to use in find path function
     IPCE_module.readTopology(topology.Intra_Links_table);
 
+    //IPCE_module.createUtilFiles(topology.Intra_Links_table);
 }
 
 void ARserver::readIntraTopology(string topology_path)
@@ -199,7 +203,10 @@ int ARserver::executeIntraCall(Call_Node IntraCallNode)
     return result;
 }
 
-
+double ARserver::calculateUtil()
+{
+    return IPCE_module.calculateLinkUtil(topology.Intra_Links_table);
+}
 
 void ARserver::initializeARBGP()
 {

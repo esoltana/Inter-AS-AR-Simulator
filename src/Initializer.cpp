@@ -127,11 +127,10 @@ void Initializer::simulateMsgPassing(int nodeNum[],double arrRate, int simulatio
     
     simulation_time=simulationTime;
     
-    int p[2]={0,0};
     //main loop
     //until the request time is within simulation time continue
     
-    double callNumberUSST=0, callNumberEST=0, blockedUSST=0, blockedEST=0, pathLengthEST=0, pathLengthUSST=0, firstAR=0, secondAR=0, thirdAR=0, selectedOption=0, meanWaitingEST=0;
+    callNumber=0, callNumberUSST=0, callNumberEST=0, blockedUSST=0, blockedEST=0, pathLengthEST=0, pathLengthUSST=0, firstAR=0, secondAR=0, thirdAR=0, selectedOption=0, meanWaitingEST=0;
     while (current_time <= simulation_time) {
         
         //Variables for saving the earliest time of ARBGP calls and ARSchedule
@@ -251,7 +250,7 @@ void Initializer::simulateMsgPassing(int nodeNum[],double arrRate, int simulatio
                     
                      //writing into file for code verification
                     //myfile << left << setw(10) << GeneratedCALL_Q.top().arrival_instant_in_sec << setw(8) << GeneratedCALL_Q.top().arrival_instant_in_TS << setw(8) << result << setw(8) << GeneratedCALL_Q.top().isUSST << setw(5) << GeneratedCALL_Q.top().from_node << setw(6) << GeneratedCALL_Q.top().to_node << setw(5) << GeneratedCALL_Q.top().duration << setw(6) << GeneratedCALL_Q.top().capacity;
-                    myfile << GeneratedCALL_Q.top().arrival_instant_in_sec << " " << GeneratedCALL_Q.top().arrival_instant_in_TS << " " << result << " " << GeneratedCALL_Q.top().isUSST << " " << GeneratedCALL_Q.top().from_node << " " << GeneratedCALL_Q.top().to_node << " " << GeneratedCALL_Q.top().duration << " " << GeneratedCALL_Q.top().capacity<< " ";
+                    myfile << arrRate << " " << simulationTime<< " "<< GeneratedCALL_Q.top().arrival_instant_in_sec << " " << GeneratedCALL_Q.top().arrival_instant_in_TS << " " << result << " " << GeneratedCALL_Q.top().isUSST << " " << GeneratedCALL_Q.top().from_node << " " << GeneratedCALL_Q.top().to_node << " " << GeneratedCALL_Q.top().duration << " " << GeneratedCALL_Q.top().capacity<< " ";
                     int f=1;
                     for (int j = 0; j < GeneratedCALL_Q.top().AR_vec.size(); j++)
                     {
@@ -270,21 +269,11 @@ void Initializer::simulateMsgPassing(int nodeNum[],double arrRate, int simulatio
                         if(first)
                         {
                             myfile << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathvector[j];
-                            p[0]=ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathvector[j];
                             first=0;
                         }
                         else
                         {
                             myfile << "-" << ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathvector[j];
-                            p[1]=ARSERVER_vector[GeneratedCALL_Q.top().to_AS - 1].IPCE_module.pathvector[j];
-                            
-                            if((p[0]==1 && p[1]==2)||(p[0]==2 && p[1]==1))
-                                arrivalNum[0]++;
-                            else if((p[0]==1 && p[1]==3)||(p[0]==3 && p[1]==1))
-                                arrivalNum[1]++;
-                            else if((p[0]==2 && p[1]==3)||(p[0]==3 && p[1]==2))
-                                arrivalNum[2]++;
-                            p[0]=p[1];
                         }
                     }
                     
@@ -352,13 +341,14 @@ void Initializer::simulateMsgPassing(int nodeNum[],double arrRate, int simulatio
     }
     myfile.close();
    
-    double successNumUSST=callNumberUSST-blockedUSST;
-    double successNumEST=callNumberEST-blockedEST;
-    double avgpathLengthUSST=pathLengthUSST/successNumUSST;
-    double avgpathLengthEST=pathLengthEST/successNumEST;
-    double meanWait=meanWaitingEST/successNumEST;
-    double max_link_Util=0;
+    successNumUSST=callNumberUSST-blockedUSST;
+    successNumEST=callNumberEST-blockedEST;
+    avgpathLengthUSST=pathLengthUSST/successNumUSST;
+    avgpathLengthEST=pathLengthEST/successNumEST;
+    meanWait=meanWaitingEST/successNumEST;
+    max_link_Util=0;
     CBP= blockedUSST/callNumberUSST;
+    max_link_Util=ARSERVER_vector[0].calculateUtil();
     //should define max link utlization.
     //double firstPerc=firstAR/successNum*100;
     //double secondPerc=secondAR/successNum*100;

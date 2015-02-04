@@ -1,0 +1,9 @@
+//If our AR_Window is 24 hours, this means it is 86400 seconds. If we make Duration_of_timeslot equal to 1 sec, which means Duration_of_timeslot_in_seconds equals 1, then the A_l(t) would need 86400 entries. This will slow down the computation. Therefore let us use 10sec for a timeslot. Earlier we had chosen 1 min or 60 as the value for Duration_of_timeslot_in_seconds. But for EST calls with 75 GB as min. value and 10 Gbps as rate, the min. duration is only 1 min. So if we make the Lead_Time_in_timeslots 3, then the waiting time is minimally 3 mins when transfer time is only 1 min. So we decided to keep 75 GB as min. value, 10Gbps as link capacity, and hence lowered Duration_of_timeslot to 10 sec. A_l(t) will need a vector of 8640 entries. AR_Window is 86400 secs (24 hours – which sounds low because Computation scheduling often requires days notice). Lead_Time still needs to be minimally 1 because a call may arrive at the end of a 10-sec timeslot. Which means if we need 1 sec for round-trip prop. delay for Create-Res message to travel to all PCEs on path, then there will always be a minimum 10sec overhead. This is the reason for pushing us to make timeslot duration be 1sec. But the computation argument wins here.
+//[Prop. delay is max of 500ms-600ms]. So assume that in 1 to 1.2 sec, round-trip Create-Reservation procedure can complete. So lead_time should be at least say 1.2 sec. So now by choosing lead-time to be 1 TS and making 1 TS equal 10 sec, we have  sufficient slack to be sure that create-reservation will have completed)
+//Now finally call arrival times are continuous variables – interpreted in seconds. And so the arrival instant is mapped to one 10-sec TS. So typical values for this AR_system_input_parameters.txt: Duration_of_timeslot_in_seconds = 10, AR_Window_in_seconds = 86400, Lead_Time_in_timeslots = 1.
+//Duration_of_timeslot_in_seconds
+1
+//AR_Window_in_seconds
+4
+//Lead_Time_in_timeslots
+1
