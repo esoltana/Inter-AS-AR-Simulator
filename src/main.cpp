@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
     for( double i=1; i<=15; i++)
     {
         rate=i/3600;
-        for(int j=10; j<=1000; j*=10)
+        for(int j=10000; j<=10000; j*=10)
         {
             arrate=rate;
             simulTime=j/arrate;

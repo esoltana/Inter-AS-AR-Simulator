@@ -383,7 +383,7 @@ struct Inter_AS_Call_Node {
     double capacity;
     ;
     int duration;
-    Inter_AS_Call_Node * next_node = NULL;
+    Inter_AS_Call_Node * next_node;
         Inter_AS_Call_Node()
     {}
     Inter_AS_Call_Node(int f_AS, int f_node, int t_AS, int t_node, double s_time, double t_delay,double Capacity, int Duration,int artime, vector<int> AS_P,vector<int>ARvec)
