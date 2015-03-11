@@ -14,7 +14,7 @@ using namespace std;
 
 class Initializer {
 public:
-    Initializer(double arrRate, int simulationTime, string filename);
+    Initializer(double arrRate, int simulationTime, string filename, double k);
     void readSimulationParam(string path);
     void readARsystemParams();
     void readNumberOfASes();
@@ -48,7 +48,7 @@ public:
     int lead_time;
     
     //result parameters which used in main to write in file
-    double CBP;
+    double CBP,CBPU,CBPE;
     double callNumber;
     double successNumUSST;
     double successNumEST;
@@ -66,7 +66,7 @@ public:
     double secondAR;
     double thirdAR;
     double selectedOption;
-    double meanWaitingEST;
+    double meanWaitingEST,waitUSST;
 /////////////Simulation related Variables    
      //define a vector to keep the AR servers of all the ASs
     vector<ARserver> ARSERVER_vector;

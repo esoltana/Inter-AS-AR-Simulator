@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
     
     ofstream results;
     results.open(resultFilename.c_str());
-    results << "Arrival_rate Cnumber CBP maxlinkU numCall numOfUSST numOfEST USSTblocked ESTblocked FirstUSST secUSST thirdUSST waitEST avgLeUSST avgLeEST simulationTime" << endl;
+    results << "Arate N N1 CBP CBPU CBPE U waitEST waitUSST nUSST nEST USSTblocked ESTblocked FirstUSST secUSST thirdUSST avgLeUSST avgLeEST simTime" << endl;
     results.close();
     
     
@@ -58,17 +58,19 @@ int main(int argc, char* argv[]) {
     double simulTime=0, arrate=1;
     
     double rate;
+    double k=24;
     for( double i=1; i<=15; i++)
     {
+        cout << k*60*60<<endl;
         rate=i/3600;
         for(int j=10000; j<=10000; j*=10)
         {
             arrate=rate;
             simulTime=j/arrate;
-            Initializer init=Initializer(arrate, simulTime,outputFilename); 
+            Initializer init=Initializer(arrate, simulTime,outputFilename, k*60*60); 
            
             results.open(resultFilename.c_str(), ios::app);
-            results << rate <<" " << j <<" "<< init.CBP*100 << " " << init.max_link_Util*100<< " " << init.callNumber << " " << init.callNumberUSST<< " " << init.callNumberEST << " " << init.blockedUSST <<" " << init.blockedEST <<" " << init.firstAR << " " << init.secondAR << " " << init.thirdAR << " " << init.meanWait<<" " << init.avgpathLengthUSST << " " << init.avgpathLengthEST<<" " << simulTime << endl;
+            results <<rate <<" " << j << " " << init.callNumber <<" "<< init.CBP*100 << " " << init.CBPU*100 << " " <<init.CBPE*100 << " " << init.max_link_Util*100 << " " << init.meanWait<<" " << init.waitUSST<<" " <<init.callNumberUSST<< " " << init.callNumberEST << " " << init.blockedUSST <<" " << init.blockedEST <<" " << init.firstAR << " " << init.secondAR << " " << init.thirdAR << " " <<  init.avgpathLengthUSST << " " << init.avgpathLengthEST<<" " << simulTime << endl;
             results.close();
         }
         //results.open(resultFilename.c_str(), ios::app);

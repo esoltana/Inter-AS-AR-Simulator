@@ -33,13 +33,13 @@
 
 using namespace std;
 
-Initializer::Initializer(double arrRate, int simulationTime, string filename) {
+Initializer::Initializer(double arrRate, int simulationTime, string filename, double k) {
     
     
     readSimulationParam("InputParameters//Simulation-related-input-params");
     
     readARsystemParams();
-    
+    AR_TimeWindow_size=k;
    
     readNumberOfASes();
     
@@ -120,9 +120,9 @@ void Initializer::simulateMsgPassing(int nodeNum[],double arrRate, int simulatio
     
     int result=0;
     
-    ofstream myfile;
+    //ofstream myfile;
     //myfile.open("Output-files/1-USST-singleLink-oneOption.txt", ios::app);
-    myfile.open(filename.c_str(), ios::app);
+    //myfile.open(filename.c_str(), ios::app);
     
     
     simulation_time=simulationTime;
@@ -250,7 +250,7 @@ void Initializer::simulateMsgPassing(int nodeNum[],double arrRate, int simulatio
                     
                      //writing into file for code verification
                     //myfile << left << setw(10) << GeneratedCALL_Q.top().arrival_instant_in_sec << setw(8) << GeneratedCALL_Q.top().arrival_instant_in_TS << setw(8) << result << setw(8) << GeneratedCALL_Q.top().isUSST << setw(5) << GeneratedCALL_Q.top().from_node << setw(6) << GeneratedCALL_Q.top().to_node << setw(5) << GeneratedCALL_Q.top().duration << setw(6) << GeneratedCALL_Q.top().capacity;
-                    myfile << arrRate << " " << simulationTime<< " "<< GeneratedCALL_Q.top().arrival_instant_in_sec << " " << GeneratedCALL_Q.top().arrival_instant_in_TS << " " << result << " " << GeneratedCALL_Q.top().isUSST << " " << GeneratedCALL_Q.top().from_node << " " << GeneratedCALL_Q.top().to_node << " " << GeneratedCALL_Q.top().duration << " " << GeneratedCALL_Q.top().capacity<< " ";
+                    /*myfile << arrRate << " " << simulationTime<< " "<< GeneratedCALL_Q.top().arrival_instant_in_sec << " " << GeneratedCALL_Q.top().arrival_instant_in_TS << " " << result << " " << GeneratedCALL_Q.top().isUSST << " " << GeneratedCALL_Q.top().from_node << " " << GeneratedCALL_Q.top().to_node << " " << GeneratedCALL_Q.top().duration << " " << GeneratedCALL_Q.top().capacity<< " ";
                     int f=1;
                     for (int j = 0; j < GeneratedCALL_Q.top().AR_vec.size(); j++)
                     {
@@ -278,7 +278,7 @@ void Initializer::simulateMsgPassing(int nodeNum[],double arrRate, int simulatio
                     }
                     
                     myfile <<"\n";
-                    
+                    */
                  }else{
                      //call EPCE module and generate Inter_AS_call
                     
@@ -339,7 +339,7 @@ void Initializer::simulateMsgPassing(int nodeNum[],double arrRate, int simulatio
         }
 
     }
-    myfile.close();
+    //myfile.close();
    
     successNumUSST=callNumberUSST-blockedUSST;
     successNumEST=callNumberEST-blockedEST;
@@ -347,7 +347,12 @@ void Initializer::simulateMsgPassing(int nodeNum[],double arrRate, int simulatio
     avgpathLengthEST=pathLengthEST/successNumEST;
     meanWait=meanWaitingEST/successNumEST;
     max_link_Util=0;
-    CBP= blockedUSST/callNumberUSST;
+    
+    CBPU= blockedUSST/callNumberUSST;
+    CBP= (blockedUSST+blockedEST)/(callNumberUSST+callNumberEST);
+    CBPE= blockedEST/callNumberEST;
+    waitUSST=(secondAR/(2*(successNumUSST)))+(thirdAR/successNumUSST);
+    
     max_link_Util=ARSERVER_vector[0].calculateUtil();
     //should define max link utlization.
     //double firstPerc=firstAR/successNum*100;

@@ -196,11 +196,11 @@ int ARserver::executeIntraCall(Call_Node IntraCallNode)
         AR.push_back(x);
     }
     if(IntraCallNode.isUSST==1)
-        //result=IPCE_module.USSTfindPathPossibleShortEarliestAndReserv(IntraCallNode.from_node,IntraCallNode.to_node,IntraCallNode.capacity,IntraCallNode.duration,AR);
-        result=IPCE_module.USSTfindPathShortestPossibleAndReserv(IntraCallNode.from_node,IntraCallNode.to_node,IntraCallNode.capacity,IntraCallNode.duration,AR);
+        result=IPCE_module.USSTfindPathPossibleShortEarliestAndReserv(IntraCallNode.from_node,IntraCallNode.to_node,IntraCallNode.capacity,IntraCallNode.duration,AR);
+        //result=IPCE_module.USSTfindPathShortestPossibleAndReserv(IntraCallNode.from_node,IntraCallNode.to_node,IntraCallNode.capacity,IntraCallNode.duration,AR);
     else
-        //result=IPCE_module.ESTfindPathPossibleShortEarliestAndReserv(IntraCallNode.from_node,IntraCallNode.to_node,IntraCallNode.capacity,IntraCallNode.duration,AR, IntraCallNode.cap_return);
-        result=IPCE_module.ESTfindPathShortestPossibleAndReserv(IntraCallNode.from_node,IntraCallNode.to_node,IntraCallNode.capacity,IntraCallNode.duration,AR, IntraCallNode.cap_return);
+        result=IPCE_module.ESTfindPathPossibleShortEarliestAndReserv(IntraCallNode.from_node,IntraCallNode.to_node,IntraCallNode.capacity,IntraCallNode.duration,AR, IntraCallNode.cap_return);
+        //result=IPCE_module.ESTfindPathShortestPossibleAndReserv(IntraCallNode.from_node,IntraCallNode.to_node,IntraCallNode.capacity,IntraCallNode.duration,AR, IntraCallNode.cap_return);
     
     return result;
 }

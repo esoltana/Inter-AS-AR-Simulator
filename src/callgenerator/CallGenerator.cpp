@@ -323,6 +323,7 @@ void CallGenerator::generateCall(double callQ_arrival_time){
         
         
         //TODO: modified, produce two AR option randomly to show the start and end of scheduling window
+        /*
         for (int i = 0; i < ESTn; i++) {
             int ARoption = 0;
             //if the AR vector is not empty produce one ARoption randomely which is not equal to the last inserted element in ARvec
@@ -338,6 +339,10 @@ void CallGenerator::generateCall(double callQ_arrival_time){
             ARvec.push_back(ARoption);
            
         }
+         */
+        ARvec.push_back(arrival_timeslot + leadtime+1);
+        ARvec.push_back(arrival_timeslot + leadtime+1+((20*60*60)/slot_length)-Duration);
+        
         //sort the AR options in increasing order
         sort(ARvec.begin(), ARvec.end());
         
