@@ -291,19 +291,25 @@ void CallGenerator::generateCall(double callQ_arrival_time){
         //duration is convereted to number of time slotes which required by this call (60min*60)sec/10sec-slot=360 timeslot
         //TODO: if duration is not a divisible to time slot -> ceil of that devision should be considered
         Duration = USSTduration * 60 / slot_length;
-        
+        double alpha=0.7;
         //generate AR option times according to USSTn value
         for (int i = 0; i < USSTn; i++) {
             int ARoption = 0;
+            double alpha=0.7;
+            double x=(double)i/(double)10;
+            alpha-=x;
+            
             //if the AR vector is not empty produce one ARoption randomely which is not equal to the last inserted element in ARvec
             if (ARvec.size() != 0) {
                 do {
                     //TODO: this line is changed to make sure that the call is completely within this window size
-                    ARoption = rand() % (windowsizeTimeslot-leadtime-Duration)+ arrival_timeslot + leadtime+1;
+                    //ARoption = rand() % (windowsizeTimeslot-leadtime-Duration)+ arrival_timeslot + leadtime+1;
+                    ARoption = (zipf(alpha, (windowsizeTimeslot-leadtime-Duration))) + arrival_timeslot + leadtime+1;
                 } while (find(ARvec.begin(), ARvec.end(), ARoption) != ARvec.end());
             } else
                 //if ARvec is empty, produce a random ARoption (doesn't need to check the last element of ARvec)
-                ARoption = rand() % (windowsizeTimeslot-leadtime-Duration)+ arrival_timeslot + leadtime+1;
+                //ARoption = rand() % (windowsizeTimeslot-leadtime-Duration)+ arrival_timeslot + leadtime+1;
+                ARoption = (zipf(alpha, (windowsizeTimeslot-leadtime-Duration))) + arrival_timeslot + leadtime+1;
         
             //push the produced AR option into ARvec
             ARvec.push_back(ARoption);
